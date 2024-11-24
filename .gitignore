@@ -1,0 +1,13 @@
+# IntelliJ 설정파일
+.idea/
+
+# Gradle 캐시
+.gradle/
+build/
+
+# OS 파일
+.DS_Store
+Thumbs.db
+
+# 환경 파일
+.env
