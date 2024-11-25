@@ -1,0 +1,15 @@
+spring:
+    application:
+        name: keupang-config-server
+    cloud:
+        config:
+            server:
+                git:
+                    uri: git@github.com:JongHak19/keupang-cloud-config.git
+                    ignoreLocalSshSettings: true
+                    private-key: ${private_key}
+server:
+    port: 9000
+
+
+
