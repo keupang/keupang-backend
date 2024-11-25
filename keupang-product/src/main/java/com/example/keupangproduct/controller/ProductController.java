@@ -1,15 +1,15 @@
-package com.example.keupanguser.controller;
+package com.example.keupangproduct.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/product")
+public class ProductController {
 
-    @GetMapping("/users")
-    public String getUsers() {
-        return "user";
+    @GetMapping("/products")
+    public String getProducts() {
+        return "hi";
     }
 }
