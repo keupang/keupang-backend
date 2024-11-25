@@ -1,0 +1,14 @@
+spring:
+    application:
+        name: product
+    profiles:
+        active: dev
+    config:
+        import: optional:configserver:http://admin:admin@localhost:9000
+
+#eureka:
+#    client:
+#        fetch-registry: true
+#        register-with-eureka: true
+#        service-url:
+#            defaultZone: http://admin:admin@localhost:8761/eureka

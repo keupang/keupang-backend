@@ -1,4 +1,5 @@
 rootProject.name = 'keupang'
 include 'keupang-config-server'
 include 'keupang-user'
+include 'keupang-product'
 
