@@ -11,8 +11,7 @@ import org.springframework.cloud.config.server.EnableConfigServer;
 public class KeupangConfigServerApplication {
 
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.configure()
-            .directory("./")  // .env 파일 경로 설정
+        Dotenv dotenv = Dotenv.configure().directory("./")  // .env 파일 경로 설정
             .load();
         // Base64 복호화
         String base64Key = dotenv.get("private_key");

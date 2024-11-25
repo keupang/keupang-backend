@@ -28,7 +28,6 @@ ext {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-security'
 
     //spring-cloud
     implementation 'org.springframework.cloud:spring-cloud-config-server'
@@ -38,6 +37,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     //security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
 }
 
