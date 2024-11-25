@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+allprojects { //모든 모듈 설정
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects { //하위 모듈 공통 설정
+    apply plugin: 'java'
+
+    // 공통 설정
+    group = 'com.example'
+    version = '0.0.1-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+
+    // 공통 의존성 관리
+    dependencies {
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+    }
+}

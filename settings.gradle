@@ -1,0 +1,3 @@
+rootProject.name = 'keupang'
+include 'keupang-config-server'
+
