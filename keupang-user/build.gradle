@@ -28,17 +28,20 @@ ext {
 }
 
 dependencies {
-
-    //spring-cloud
-    implementation 'org.springframework.cloud:spring-cloud-config-server'
+    //spring
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     //lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    //security
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    testImplementation 'org.springframework.security:spring-security-test'
+    //eureka
+//    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    //junit
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 dependencyManagement {
