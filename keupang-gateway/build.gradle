@@ -26,8 +26,14 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	//spring-cloud
+	//gateway
 	implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+
+	//loadbalancer
+	implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+
+	//eureka-client
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
 	//junit
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

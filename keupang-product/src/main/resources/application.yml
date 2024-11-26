@@ -12,3 +12,6 @@ eureka:
         register-with-eureka: true
         service-url:
             defaultZone: http://${security_username}:${security_password}@localhost:8761/eureka
+    instance:
+        instance-id: product-service-${spring.application.instance-id:${random.value}}
+        prefer-ip-address: true
