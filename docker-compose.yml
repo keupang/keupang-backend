@@ -1,0 +1,63 @@
+services:
+    config-server:
+        build:
+            context: ./keupang-config-server
+        ports:
+            - "9000:9000"
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod
+            - private_key=${private_key}
+        networks:
+            - msa-network
+
+    api-gateway:
+        build:
+            context: ./keupang-gateway
+        ports:
+            - "8080:8080"
+        depends_on:
+            - eureka-server
+        environment:
+            - security_username=${security_username}
+            - security_password=${security_password}
+        networks:
+            - msa-network
+
+    service-user:
+        build:
+            context: ./keupang-user
+        ports:
+            - "8081:8081"
+        depends_on:
+            - eureka-server
+            - config-server
+        environment:
+            - security_username=${security_username}
+            - security_password=${security_password}
+        networks:
+            - msa-network
+
+    service-product:
+        build:
+            context: ./keupang-product
+        ports:
+            - "8082:8082"
+        depends_on:
+            - eureka-server
+            - config-server
+        environment:
+            - security_username=${security_username}
+            - security_password=${security_password}
+        networks:
+            - msa-network
+
+    eureka-server:
+        build:
+            context: ./keupang-eureka-server
+        ports:
+            - "8761:8761"
+        networks:
+            - msa-network
+networks:
+    msa-network:
+        driver: bridge

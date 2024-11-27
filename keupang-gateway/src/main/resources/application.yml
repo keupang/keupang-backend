@@ -10,20 +10,25 @@ spring:
                     name: Path
                     args:
                         pattern: /user/**
-                uri: http://localhost:8081
-
+                uri: lb://user
+            routes[1]:
+                id: product
+                predicates[0]:
+                    name: Path
+                    args:
+                        pattern: /product/**
+                uri: lb://product
+            discovery:
+                locator:
+                    enabled: true
 server:
     port: 8080
 
-
-management:
-    endpoints:
-        web:
-            exposure:
-                include: gateway
-    endpoint:
-        gateway:
-            enabled: true
-
+eureka:
+    client:
+        register-with-eureka: true
+        fetch-registry: true
+        service-url:
+            defaultZone: http://${security_username}:${security_password}@eureka-server:8761/eureka
 
 
