@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # 3. Copy JAR file
-COPY target/*.jar app.jar
+COPY build/libs/*.jar app.jar
 
 # 4. Expose port
 EXPOSE 9000
