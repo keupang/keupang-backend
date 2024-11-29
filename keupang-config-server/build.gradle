@@ -45,6 +45,10 @@ dependencies {
 
     //junit
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //httpclient
+    implementation("org.apache.httpcomponents:httpclient:4.5.14")
+
 }
 
 dependencyManagement {

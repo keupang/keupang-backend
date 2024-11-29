@@ -39,6 +39,10 @@ services:
             context: ./keupang-user
         ports:
             - "8081:8081"
+        deploy:
+            mode: replicated
+            restart_policy:
+                condition: on-failure
         depends_on:
             - eureka-server
             - config-server
