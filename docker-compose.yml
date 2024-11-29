@@ -1,4 +1,15 @@
 services:
+    mysql:
+        image: mysql:8.0.39
+        container_name: service-mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: ${USER_DB_NAME}
+            TZ: Asia/Seoul
+        ports:
+            - "${DB_PORT}:${DB_PORT}"
+        networks:
+            - msa-network
     config-server:
         build:
             context: ./keupang-config-server
@@ -31,9 +42,15 @@ services:
         depends_on:
             - eureka-server
             - config-server
+            - mysql
         environment:
             - security_username=${security_username}
             - security_password=${security_password}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+            - DB_USERNAME=${DB_USERNAME}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - USER_DB_NAME=${USER_DB_NAME}
         networks:
             - msa-network
 

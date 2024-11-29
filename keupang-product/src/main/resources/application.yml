@@ -4,7 +4,7 @@ spring:
     profiles:
         active: dev
     config:
-        import: optional:configserver:http://${security_username}:${security_password}@eureka-server:9000
+        import: optional:configserver:http://${security_username}:${security_password}@config-server:9000
 
 eureka:
     client:
