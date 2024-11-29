@@ -9,14 +9,14 @@ spring:
                 predicates[0]:
                     name: Path
                     args:
-                        pattern: /user/**
+                        pattern: /api/user/**
                 uri: lb://user
             routes[1]:
                 id: product
                 predicates[0]:
                     name: Path
                     args:
-                        pattern: /product/**
+                        pattern: /api/product/**
                 uri: lb://product
             discovery:
                 locator:
