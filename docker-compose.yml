@@ -7,7 +7,7 @@ services:
             MYSQL_DATABASE: ${USER_DB_NAME}
             TZ: Asia/Seoul
         ports:
-            - "${DB_PORT}:${DB_PORT}"
+            - "3307:${DB_PORT}"
         networks:
             - msa-network
     config-server:

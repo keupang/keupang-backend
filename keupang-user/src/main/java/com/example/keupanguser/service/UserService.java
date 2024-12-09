@@ -1,6 +1,7 @@
 package com.example.keupanguser.service;
 
 import com.example.keupanguser.domain.User;
+import com.example.keupanguser.jwt.JwtTokenProvider;
 import com.example.keupanguser.repository.UserRepository;
 import com.example.keupanguser.request.UserRequest;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,6 @@ public class UserService {
         if (userRepository.existsByUserEmail(user.getUserEmail())) {
             throw new IllegalStateException("Email is already taken.");
         }
-        log.debug("userPassword: {}", user.getUserPassword());
 
         User newUser = User.builder()
             .userName(user.getUserName())

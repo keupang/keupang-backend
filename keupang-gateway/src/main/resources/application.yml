@@ -4,23 +4,26 @@ spring:
 
     cloud:
         gateway:
-            routes[0]:
-                id: user
-                predicates[0]:
-                    name: Path
-                    args:
-                        pattern: /api/user/**
-                uri: lb://user
-            routes[1]:
-                id: product
-                predicates[0]:
-                    name: Path
-                    args:
-                        pattern: /api/product/**
-                uri: lb://product
+            routes:
+                - id: user
+                  uri:
+                    lb://user
+                  predicates:
+                    - Path=/api/user/**
+                - id: auth
+                  uri:
+                    lb://user
+                  predicates:
+                    - Path=/api/auth/**
+                - id: product
+                  uri:
+                    lb://product
+                  predicates:
+                    - Path=/api/product/**
             discovery:
                 locator:
                     enabled: true
+
 server:
     port: 8080
 

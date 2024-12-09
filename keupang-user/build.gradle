@@ -32,10 +32,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    //lombok
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-
     //config-client
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
 
@@ -49,9 +45,6 @@ dependencies {
     //test 를 위한 h2
     testImplementation 'com.h2database:h2'
 
-    //jwt
-    implementation 'io.jsonwebtoken:jjwt:0.9.1'
-
     //junit
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -64,6 +57,11 @@ dependencies {
 
     //jpa
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    //jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 }
 
 dependencyManagement {

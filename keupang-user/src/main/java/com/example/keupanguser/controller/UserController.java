@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
     @PostMapping("/users")
-    public String getUsers(@ModelAttribute UserRequest user) {
-        log.debug(user.getUserPassword());
-        User user1 = userService.registerUser(user);
+    public String getUsers(@ModelAttribute UserRequest userRequest) {
+        log.debug(userRequest.getUserPassword());
+        User user1 = userService.registerUser(userRequest);
         if(user1 == null){
             log.info("회원가입 실패");
             throw new IllegalArgumentException("회원가입 실패");
