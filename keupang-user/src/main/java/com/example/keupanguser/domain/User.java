@@ -13,23 +13,16 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Getter
-@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
     Long userId;
 
-    @Column(nullable = false, unique = true, name = "user_email")
     String userEmail;
-    @Column(name = "user_password")
     String userPassword;
-    @Column(name = "user_name")
     String userName;
-    @Column(name = "user_phone")
     String userPhone;
-    @Column(name = "role")
     Role role;
 
     @Builder

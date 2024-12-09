@@ -21,7 +21,6 @@ public class UserService {
         if (userRepository.existsByUserEmail(user.getUserEmail())) {
             throw new IllegalStateException("Email is already taken.");
         }
-        log.debug("userPassword: {}", user.getUserPassword());
 
         User newUser = User.builder()
             .userName(user.getUserName())
