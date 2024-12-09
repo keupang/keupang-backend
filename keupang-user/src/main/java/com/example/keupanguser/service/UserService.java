@@ -1,6 +1,7 @@
 package com.example.keupanguser.service;
 
 import com.example.keupanguser.domain.User;
+import com.example.keupanguser.jwt.JwtTokenProvider;
 import com.example.keupanguser.repository.UserRepository;
 import com.example.keupanguser.request.UserRequest;
 import lombok.RequiredArgsConstructor;

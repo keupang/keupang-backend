@@ -1,4 +1,4 @@
-package com.example.keupanguser;
+package com.example.keupanguser.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -16,10 +16,10 @@ public class JwtTokenProvider {
     private final KeyPair keyPair = Keys.keyPairFor(SignatureAlgorithm.ES256);
     private final PrivateKey privateKey = keyPair.getPrivate();
     private final PublicKey publicKey = keyPair.getPublic();
-    private final long validityInMilliseconds = 360000;
 
     public String createToken(String email, String role){
         Date now = new Date();
+        long validityInMilliseconds = 360000;
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()
@@ -36,7 +36,7 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(publicKey).parseClaimsJwt(token);
             return true;
         }catch (Exception e){
-            log.error("이상한 토큰 인디요",e);
+            log.error("이상한 토큰 이잖아 꺼져",e);
             return false;
         }
     }
