@@ -1,6 +1,7 @@
 package com.example.keupanguser.controller;
 
 import com.example.keupanguser.jwt.JwtTokenProvider;
+import com.example.keupanguser.request.LoginRequest;
 import com.example.keupanguser.request.UserRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,9 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@ModelAttribute UserRequest userRequest){
-        String token = jwtTokenProvider.createToken(userRequest.getUserEmail(), "USER");
+    public ResponseEntity<?> login(@ModelAttribute LoginRequest loginRequest){
+
+        String token = jwtTokenProvider.createToken(loginRequest.getUserEmail(), "USER");
         return ResponseEntity.ok(token);
     }
 }

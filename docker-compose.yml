@@ -1,6 +1,6 @@
 services:
     mysql:
-        image: mysql:8.0.39
+        image: playdodo/mysql:8.0.39
         container_name: service-mysql
         environment:
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
@@ -11,8 +11,8 @@ services:
         networks:
             - msa-network
     config-server:
-        build:
-            context: ./keupang-config-server
+        image: playdodo/keupang-config-server:1.0
+        container_name: keupang-config-server
         ports:
             - "9000:9000"
         environment:
@@ -22,8 +22,8 @@ services:
             - msa-network
 
     api-gateway:
-        build:
-            context: ./keupang-gateway
+        image: playdodo/keupang-api-gateway:1.0
+        container_name: keupang-api-gateway
         ports:
             - "8080:8080"
         depends_on:
@@ -35,8 +35,8 @@ services:
             - msa-network
 
     service-user:
-        build:
-            context: ./keupang-user
+        image: playdodo/keupang-service-user:1.0
+        container_name: keupang-service-user
         ports:
             - "8081:8081"
         deploy:
@@ -59,8 +59,8 @@ services:
             - msa-network
 
     service-product:
-        build:
-            context: ./keupang-product
+        image: playdodo/keupang-service-product:1.0
+        container_name: keupang-service-product
         ports:
             - "8082:8082"
         depends_on:
@@ -73,8 +73,8 @@ services:
             - msa-network
 
     eureka-server:
-        build:
-            context: ./keupang-eureka-server
+        image: playdodo/keupang-eureka-server:1.0
+        container_name: keupang-eureka-server
         ports:
             - "8761:8761"
         networks:
