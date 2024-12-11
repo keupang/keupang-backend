@@ -34,4 +34,10 @@ eureka:
         service-url:
             defaultZone: http://${security_username}:${security_password}@eureka-server:8761/eureka
 
+springdoc:
+    swagger-ui:
+        path: /swagger-ui.html
+        urls:
+            - url: /user/v3/api-docs
+              name: user-service
 
