@@ -15,3 +15,8 @@ spring:
 eureka:
     client:
         enabled: false
+
+openapi:
+    service:
+        # API Gateway 포트
+        url: http://localhost:8080
