@@ -41,3 +41,4 @@ springdoc:
             - url: /user/v3/api-docs
               name: user-service
 
+

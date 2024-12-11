@@ -33,7 +33,9 @@ eureka:
     instance:
         instance-id: user-service-${spring.application.instance-id:${random.value}}
         prefer-ip-address: true
-logging:
-    level:
-        org.springframework.cloud: DEBUG
-        org.springframework.web.client.RestTemplate: DEBUG
+
+springdoc:
+    api-docs:
+        path: /user/v3/api-docs
+    swagger-ui:
+        path: /user/swagger-ui.html
