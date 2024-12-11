@@ -1,6 +1,6 @@
 services:
     mysql:
-        image: playdodo/mysql:8.0.39
+        image: mysql:8.0.39
         container_name: service-mysql
         environment:
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
@@ -13,6 +13,7 @@ services:
     config-server:
         image: playdodo/keupang-config-server:1.0
         container_name: keupang-config-server
+        platform: linux/arm64
         ports:
             - "9000:9000"
         environment:
@@ -24,6 +25,7 @@ services:
     api-gateway:
         image: playdodo/keupang-api-gateway:1.0
         container_name: keupang-api-gateway
+        platform: linux/arm64
         ports:
             - "8080:8080"
         depends_on:
@@ -37,6 +39,7 @@ services:
     service-user:
         image: playdodo/keupang-service-user:1.0
         container_name: keupang-service-user
+        platform: linux/arm64
         ports:
             - "8081:8081"
         deploy:
@@ -61,6 +64,7 @@ services:
     service-product:
         image: playdodo/keupang-service-product:1.0
         container_name: keupang-service-product
+        platform: linux/arm64
         ports:
             - "8082:8082"
         depends_on:
@@ -75,6 +79,7 @@ services:
     eureka-server:
         image: playdodo/keupang-eureka-server:1.0
         container_name: keupang-eureka-server
+        platform: linux/arm64
         ports:
             - "8761:8761"
         networks:

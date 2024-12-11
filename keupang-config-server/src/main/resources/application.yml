@@ -10,9 +10,9 @@ spring:
                     private-key: ${private_key}
 server:
     port: 9000
-logging:
-    level:
-        org.springframework.cloud.config.server: DEBUG
+#logging:
+#    level:
+#        org.springframework.cloud.config.server: DEBUG
 
 
 

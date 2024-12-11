@@ -29,6 +29,5 @@ subprojects { //하위 모듈 공통 설정
     dependencies {
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-        implementation 'io.github.cdimascio:dotenv-java:3.0.0'
     }
 }
