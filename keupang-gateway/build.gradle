@@ -41,6 +41,9 @@ dependencies {
 	//lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	//swegger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
 }
 
 dependencyManagement {
