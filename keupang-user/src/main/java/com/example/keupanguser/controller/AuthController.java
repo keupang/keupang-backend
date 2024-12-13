@@ -1,15 +1,12 @@
 package com.example.keupanguser.controller;
 
-import com.example.keupanguser.jwt.JwtTokenProvider;
 import com.example.keupanguser.request.LoginRequest;
-import com.example.keupanguser.request.UserRequest;
+import com.example.keupanguser.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,12 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
-    private final JwtTokenProvider jwtTokenProvider;
-
+    private final UserService userService;
     @PostMapping("/login")
     public ResponseEntity<?> login(@ModelAttribute LoginRequest loginRequest){
-
-        String token = jwtTokenProvider.createToken(loginRequest.getUserEmail(), "USER");
+        String token = userService.userLogin(loginRequest);
         return ResponseEntity.ok(token);
     }
 }
