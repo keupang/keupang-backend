@@ -36,14 +36,14 @@ public class UserService {
 
     public String userLogin(LoginRequest loginRequest){
         // 이메일로 사용자 조회
-        User user = userRepository.findByUserEmail(loginRequest.getUserEmail())
+        User user = userRepository.findByUserEmail(loginRequest.userEmail())
             .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
 
         // 비밀번호 검증
-        if (!passwordEncoder.matches(loginRequest.getUserPassword(), user.getUserPassword())) {
+        if (!passwordEncoder.matches(loginRequest.userPassword(), user.getUserPassword())) {
             throw new IllegalArgumentException("Invalid email or password");
         }
-        return jwtTokenProvider.createToken(loginRequest.getUserEmail(),
+        return jwtTokenProvider.createToken(loginRequest.userEmail(),
             String.valueOf(user.getRole()));
 
     }

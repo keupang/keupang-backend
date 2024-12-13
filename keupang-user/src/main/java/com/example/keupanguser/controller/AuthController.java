@@ -2,6 +2,7 @@ package com.example.keupanguser.controller;
 
 import com.example.keupanguser.request.LoginRequest;
 import com.example.keupanguser.service.UserService;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@ModelAttribute LoginRequest loginRequest){
         String token = userService.userLogin(loginRequest);
-        return ResponseEntity.ok(token);
+        System.out.println("Generated Token: " + token); // 디버깅용 로그
+
+        if (token == null) {
+            throw new IllegalArgumentException("Token cannot be null");
+        }
+        return ResponseEntity.ok(Map.of("token", token));
     }
 }
