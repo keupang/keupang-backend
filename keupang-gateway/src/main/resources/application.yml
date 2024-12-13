@@ -4,6 +4,19 @@ spring:
 
     cloud:
         gateway:
+            globalcors:
+                cors-configurations:
+                    '[/**]':
+                        allowedOrigins: "*"
+                        allowedMethods:
+                            - GET
+                            - POST
+                            - PUT
+                            - DELETE
+                            - OPTIONS
+                        allowedHeaders:
+                            - "*"
+
             routes:
                 - id: user
                   uri:
@@ -15,6 +28,11 @@ spring:
                     lb://user
                   predicates:
                     - Path=/api/auth/**
+                -   id: user-swagger
+                    uri:
+                        lb://user
+                    predicates:
+                        - Path=/user/**
                 - id: product
                   uri:
                     lb://product
@@ -39,6 +57,9 @@ springdoc:
         path: /swagger-ui.html
         urls:
             - url: /user/v3/api-docs
-              name: user-service
+              name: user
+        enabled: true
+    api-docs:
+        enabled: true
 
 
