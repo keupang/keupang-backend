@@ -36,7 +36,7 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(publicKey).parseClaimsJwt(token);
             return true;
         }catch (Exception e){
-            log.error("이상한 토큰 이잖아 꺼져",e);
+            log.error("이상한 토큰 이잖아 저리가",e);
             return false;
         }
     }
