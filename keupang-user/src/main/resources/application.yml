@@ -1,4 +1,9 @@
 spring:
+    data:
+      redis:
+          host: service-redis
+          port: 6379
+
     application:
         name: user
     profiles:
@@ -27,7 +32,14 @@ eureka:
     instance:
         instance-id: user-service-${spring.application.instance-id:${random.value}}
         prefer-ip-address: true
-logging:
-    level:
-        org.springframework.cloud: DEBUG
-        org.springframework.web.client.RestTemplate: DEBUG
+
+springdoc:
+    api-docs:
+        path: /user/v3/api-docs
+    swagger-ui:
+        path: /user/swagger-ui.html
+
+openapi:
+    service:
+        # API Gateway 포트
+        url: https://api.keupang.store

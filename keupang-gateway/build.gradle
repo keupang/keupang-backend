@@ -41,6 +41,9 @@ dependencies {
 	//lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	//swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.4.0'
 }
 
 dependencyManagement {
