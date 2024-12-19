@@ -51,7 +51,7 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-                .requestMatchers("/api/user/**", "/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/user/**")
+                .requestMatchers("/api/user/**", "/api/auth/**", "/user/**")
                 .permitAll()  // 로그인, 회원가입 엔드포인트 허용
                 .anyRequest().authenticated())
             .formLogin(AbstractHttpConfigurer::disable)

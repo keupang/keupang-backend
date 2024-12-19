@@ -16,15 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
-    private final UserService userService;
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@ModelAttribute LoginRequest loginRequest){
-        String token = userService.userLogin(loginRequest);
-        System.out.println("Generated Token: " + token); // 디버깅용 로그
 
-        if (token == null) {
-            throw new IllegalArgumentException("Token cannot be null");
-        }
-        return ResponseEntity.ok(Map.of("token", token));
+    private final UserService userService;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@ModelAttribute LoginRequest loginRequest) {
+        log.info("LoginRequest: {}", loginRequest);
+        log.info("UserService class: {}", userService.getClass()); // Mock 객체 확인
+        String token = userService.userLogin(loginRequest);
+//        if (token == null){
+//            throw new IllegalArgumentException("Invalid email or password.");
+//        }
+//        return ResponseEntity.ok(Map.of("token", token));
+        log.info("Generated Token: {}", token);
+        return ResponseEntity.ok(token);
     }
 }

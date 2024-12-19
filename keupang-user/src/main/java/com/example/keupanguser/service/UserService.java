@@ -45,7 +45,6 @@ public class UserService {
         }
         return jwtTokenProvider.createToken(loginRequest.userEmail(),
             String.valueOf(user.getRole()));
-
     }
 
 }

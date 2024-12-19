@@ -40,8 +40,6 @@ services:
         image: playdodo/keupang-service-user:1.0
         container_name: keupang-service-user
         platform: linux/arm64
-        ports:
-            - "8081:8081"
         deploy:
             mode: replicated
             restart_policy:
