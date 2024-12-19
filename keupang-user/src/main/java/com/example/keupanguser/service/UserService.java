@@ -5,8 +5,10 @@ import com.example.keupanguser.jwt.JwtTokenProvider;
 import com.example.keupanguser.repository.UserRepository;
 import com.example.keupanguser.request.LoginRequest;
 import com.example.keupanguser.request.UserRequest;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, Object> redisTemplate;
     public User registerUser(UserRequest user) {
         log.debug("userPassword: {}", user.getUserPassword());
         if (userRepository.existsByUserEmail(user.getUserEmail())) {
@@ -43,8 +46,22 @@ public class UserService {
         if (!passwordEncoder.matches(loginRequest.userPassword(), user.getUserPassword())) {
             throw new IllegalArgumentException("Invalid email or password");
         }
-        return jwtTokenProvider.createToken(loginRequest.userEmail(),
+
+        String token = jwtTokenProvider.createToken(loginRequest.userEmail(),
             String.valueOf(user.getRole()));
+
+        // Redis에 토큰 저장
+        String redisKey = "user:token:" + user.getUserEmail();
+        redisTemplate.opsForValue().set(redisKey, token, Duration.ofHours(2)); // 2시간 만료
+
+        log.info("redis 저 : {} = {}",redisKey, token);
+        return token;
+    }
+
+    public void logout(String userEmail) {
+        String redisKey = "user:token:" + userEmail;
+        redisTemplate.delete(redisKey);
+        log.info("Redis에서 삭제: {}", redisKey);
     }
 
 }

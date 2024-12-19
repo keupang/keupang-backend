@@ -2,12 +2,16 @@ package com.example.keupanguser.controller;
 
 import com.example.keupanguser.request.LoginRequest;
 import com.example.keupanguser.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,5 +30,18 @@ public class AuthController {
         String token = userService.userLogin(loginRequest);
         log.info("Generated Token: {}", token);
         return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
+        log.info("로그아웃 요청: {}", token);
+
+        // Bearer 토큰에서 실제 JWT 추출
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        userService.logout(token);
+        return ResponseEntity.ok("로그아웃 성공");
     }
 }
