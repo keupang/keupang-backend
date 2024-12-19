@@ -10,6 +10,16 @@ services:
             - "3307:${DB_PORT}"
         networks:
             - msa-network
+    redis:
+        image: redis:latest
+        container_name: service-redis
+        ports:
+            - "6379:6379"
+        volumes:
+            - ./redis-data:/data # 데이터 지속화를 위한 volume
+        networks:
+            - msa-network
+
     config-server:
         image: playdodo/keupang-config-server:1.0
         container_name: keupang-config-server
@@ -45,10 +55,13 @@ services:
             restart_policy:
                 condition: on-failure
         depends_on:
+            - redis
             - eureka-server
             - config-server
             - mysql
         environment:
+            - REDIS_HOST=service-redis
+            - REDIS_PORT=6379
             - security_username=${security_username}
             - security_password=${security_password}
             - DB_HOST=${DB_HOST}

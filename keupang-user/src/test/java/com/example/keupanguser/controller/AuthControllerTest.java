@@ -26,6 +26,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(properties = {
     "spring.config.name=application-test"
@@ -37,12 +38,12 @@ class AuthControllerTest {
     private UserService userService;
 
     @Autowired
-    private AuthController authController;
+    private WebApplicationContext webApplicationContext;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
     @Test
@@ -53,7 +54,7 @@ class AuthControllerTest {
 
         when(userService.userLogin(any(LoginRequest.class))).thenReturn(mockToken);
 
-        // 디버그: Mock 설정 확인
+        // 디버그: Mock 설정 d확인
         System.out.println("Mock 설정 확인: " + userService.userLogin(loginRequest));
 
         // When & Then

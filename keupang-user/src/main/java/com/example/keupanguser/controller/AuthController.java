@@ -24,10 +24,6 @@ public class AuthController {
         log.info("LoginRequest: {}", loginRequest);
         log.info("UserService class: {}", userService.getClass()); // Mock 객체 확인
         String token = userService.userLogin(loginRequest);
-//        if (token == null){
-//            throw new IllegalArgumentException("Invalid email or password.");
-//        }
-//        return ResponseEntity.ok(Map.of("token", token));
         log.info("Generated Token: {}", token);
         return ResponseEntity.ok(token);
     }
