@@ -8,6 +8,8 @@ services:
             TZ: Asia/Seoul
         ports:
             - "3307:${DB_PORT}"
+        volumes:
+            - ./mysql-data:/var/lib/mysql
         networks:
             - msa-network
     redis:
