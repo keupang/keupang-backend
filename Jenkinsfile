@@ -23,7 +23,7 @@ pipeline {
                 ./gradlew clean build -p keupang-config-server
                 ./gradlew clean build -p keupang-eureka-server
                 ./gradlew clean build -p keupang-gateway
-                ./gradlew clean build -p keupang-pruduct
+                ./gradlew clean build -p keupang-product
                 ./gradlew clean build -p keupang-user
                 '''
             }
