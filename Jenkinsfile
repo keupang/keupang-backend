@@ -41,6 +41,7 @@ pipeline {
                     sh '''
                     # Docker Hub 로그인
                     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    echo "Docker login result: $?"
 
                     # 각 프로젝트의 Dockerfile을 사용하여 이미지 빌드 및 Push
                     docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-config-server:1.0 ./keupang-config-server --push
