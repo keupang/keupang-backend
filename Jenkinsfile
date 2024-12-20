@@ -8,20 +8,6 @@ pipeline {
     }
 
     stages {
-        stage('Docker node test') {
-          steps {
-            // Steps run in node:7-alpine docker container on docker agent
-            sh 'node --version'
-          }
-        }
-
-        stage('Docker maven test') {
-          steps {
-            // Steps run in maven:3-alpine docker container on docker agent
-            sh 'mvn --version'
-          }
-        }
-
         stage('Checkout') {
             steps {
                 echo 'Checking out source code...'
