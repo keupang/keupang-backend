@@ -1,7 +1,6 @@
 pipeline {
-    agent {
-        label 'docker'
-    }
+    agent any
+
     environment {
         GIT_REPO = 'https://github.com/keupang/keupang-backend.git'
         GIT_CREDENTIALS = 'github-key' // Credential ID
