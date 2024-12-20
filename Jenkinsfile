@@ -59,11 +59,11 @@ pipeline {
                 sshagent(['server-ssh-key']) { // 서버 접속을 위한 SSH 키의 Credential ID
                     sh '''
                     # 서버에 SSH로 접속해서 이미지 Pull 및 Compose 실행
-                    ssh -o StrictHostKeyChecking=no root@api.keupang.store <<EOF
+                    ssh -o StrictHostKeyChecking=no root@api.keupang.store << EOF
                     cd /home
                     docker compose pull
                     docker compose up -d
-                    docker image prune -f
+                    exit
                     EOF
                     '''
                 }
