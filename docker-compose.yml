@@ -9,7 +9,7 @@ services:
         ports:
             - "3307:${DB_PORT}"
         volumes:
-            - ./mysql-data:/var/lib/mysql #잘될까?
+            - ./mysql-data:/var/lib/mysql #잘될껄?
         networks:
             - msa-network
     redis:
