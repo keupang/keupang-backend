@@ -5,14 +5,11 @@ pipeline {
         GIT_REPO = 'https://github.com/keupang/keupang-backend.git'
         GIT_CREDENTIALS = 'github-key' // Credential ID
         DOCKER_HUB_CREDENTIALS = 'docker-key' // Docker Hub Credentials ID
+        SLACK_CHANNEL = '#keupang-back' // Slack 채널 이름
+        SLACK_CREDENTIAL_ID = 'slack-key' // Jenkins에 저장한 Slack Webhook Credential ID
     }
 
     stages {
-        stage('Test Docker') {
-            steps {
-                sh 'docker --version'
-            }
-        }
         stage('Checkout') {
             steps {
                 echo 'Checking out source code...'
@@ -74,9 +71,14 @@ pipeline {
     post {
         success {
             echo '✅ CI/CD Pipeline completed successfully!'
+            slackSend(channel: "${SLACK_CHANNEL}", color: "good", message: "✅ CI/CD Pipeline completed successfully! Build #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
         }
         failure {
             echo '❌ CI/CD Pipeline failed!'
+            slackSend(channel: "${SLACK_CHANNEL}", color: "danger", message: "❌ CI/CD Pipeline failed! Build #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+        }
+        always {
+            echo '📋 CI/CD Pipeline finished.'
         }
     }
 }
