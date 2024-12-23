@@ -1,16 +1,19 @@
 package com.example.keupanguser.service;
 
 import com.example.keupanguser.domain.User;
+import com.example.keupanguser.exception.CustomException;
 import com.example.keupanguser.jwt.JwtTokenProvider;
 import com.example.keupanguser.repository.UserRepository;
 import com.example.keupanguser.request.LoginRequest;
 import com.example.keupanguser.request.UserRequest;
+import com.example.keupanguser.response.LoginResponse;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +31,13 @@ public class UserService {
     public User registerUser(UserRequest user) {
         log.debug("userPassword: {}", user.getUserPassword());
         if (userRepository.existsByUserEmail(user.getUserEmail())) {
-            throw new IllegalStateException("Email is already taken.");
+            throw new CustomException(
+                HttpStatus.UNAUTHORIZED,
+                40104,
+                "중복된 이메일을 등록하였습니다.", //detail
+                "다른 이메일로 회원가입을 시도해주세요", //help
+                "DUPLICATED_USER_EMAIL" //message
+            );
         }
 
         User newUser = User.builder().userName(user.getUserName()).userEmail(user.getUserEmail())
@@ -37,14 +46,26 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    public String userLogin(LoginRequest loginRequest) {
+    public LoginResponse userLogin(LoginRequest loginRequest) {
         // 이메일로 사용자 조회
         User user = userRepository.findByUserEmail(loginRequest.userEmail())
-            .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+            .orElseThrow(() -> new CustomException(
+                HttpStatus.UNAUTHORIZED,
+                40102,
+                "이메일 또는 비밀번호를 잘못 입력하였습니다.",
+                "이메일이나 비밀번호를 다시 입력해주세요.",
+                "INVALID_EMAIL_OR_PASSWORD"
+            ));
 
         // 비밀번호 검증
         if (!passwordEncoder.matches(loginRequest.userPassword(), user.getUserPassword())) {
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new CustomException(
+                HttpStatus.UNAUTHORIZED,
+                40102,
+                "이메일 또는 비밀번호를 잘못 입력하였습니다.",
+                "이메일이나 비밀번호를 다시 입력해주세요.",
+                "INVALID_EMAIL_OR_PASSWORD"
+            );
         }
 
         String token = jwtTokenProvider.createToken(loginRequest.userEmail(),
@@ -55,13 +76,16 @@ public class UserService {
         redisTemplate.opsForValue().set(redisKey, token, Duration.ofHours(2)); // 2시간 만료
 
         log.info("redis 저장 : {} = {}", redisKey, token);
-        return token;
+
+        return new LoginResponse(user.getUserName(), token);
     }
 
-    public void logout(String userEmail) {
-        String redisKey = "user:token:" + userEmail;
+    public String logout(String token) {
+        String redisKey = "user:token:" + token;
         redisTemplate.delete(redisKey);
         log.info("Redis에서 삭제: {}", redisKey);
+
+        return jwtTokenProvider.getEmail(token);
     }
 
     public String generateVerificationCode(String email){
