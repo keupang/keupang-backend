@@ -71,6 +71,8 @@ services:
             - DB_USERNAME=${DB_USERNAME}
             - DB_PASSWORD=${DB_PASSWORD}
             - USER_DB_NAME=${USER_DB_NAME}
+            - google_username=${google_username}
+            - google_password=${google_password}
         networks:
             - msa-network
 
