@@ -32,6 +32,7 @@ import org.springframework.web.context.WebApplicationContext;
     "spring.config.name=application-test"
 })
 class AuthControllerTest {
+
     private MockMvc mockMvc;
 
     @MockBean

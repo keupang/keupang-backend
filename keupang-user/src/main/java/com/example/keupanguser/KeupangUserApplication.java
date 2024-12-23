@@ -16,6 +16,9 @@ public class KeupangUserApplication {
         System.setProperty("DB_USERNAME", System.getenv("DB_USERNAME"));
         System.setProperty("DB_PASSWORD", System.getenv("DB_PASSWORD"));
         System.setProperty("USER_DB_NAME", System.getenv("USER_DB_NAME"));
+        System.setProperty("google_username", System.getenv("google_username"));
+        System.setProperty("google_password", System.getenv("google_password"));
+
 
         SpringApplication.run(KeupangUserApplication.class, args);
     }
