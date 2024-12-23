@@ -72,6 +72,8 @@ dependencies {
     //mock
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 
+    //mail
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 dependencyManagement {

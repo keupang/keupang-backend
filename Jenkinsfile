@@ -5,6 +5,8 @@ pipeline {
         GIT_REPO = 'https://github.com/keupang/keupang-backend.git'
         GIT_CREDENTIALS = 'github-key' // Credential ID
         DOCKER_HUB_CREDENTIALS = 'docker-key' // Docker Hub Credentials ID
+        SLACK_CHANNEL = '#keupang-back' // Slack 채널 이름
+        SLACK_CREDENTIAL_ID = 'slack-key' // Jenkins에 저장한 Slack Webhook Credential ID
     }
 
     stages {
@@ -23,7 +25,7 @@ pipeline {
                 ./gradlew clean build -p keupang-config-server
                 ./gradlew clean build -p keupang-eureka-server
                 ./gradlew clean build -p keupang-gateway
-                ./gradlew clean build -p keupang-pruduct
+                ./gradlew clean build -p keupang-product
                 ./gradlew clean build -p keupang-user
                 '''
             }
@@ -55,10 +57,10 @@ pipeline {
                     sh '''
                     # 서버에 SSH로 접속해서 이미지 Pull 및 Compose 실행
                     ssh -o StrictHostKeyChecking=no root@api.keupang.store << EOF
-                        cd /home
-                        docker-compose pull
-                        docker-compose up -d
-                        docker image prune -f
+                    cd /home
+                    docker compose pull
+                    docker compose up -d
+                    exit
                     EOF
                     '''
                 }
@@ -69,9 +71,14 @@ pipeline {
     post {
         success {
             echo '✅ CI/CD Pipeline completed successfully!'
+            slackSend(channel: "${SLACK_CHANNEL}", color: "good", message: "✅ CI/CD Pipeline completed successfully! Build #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
         }
         failure {
             echo '❌ CI/CD Pipeline failed!'
+            slackSend(channel: "${SLACK_CHANNEL}", color: "danger", message: "❌ CI/CD Pipeline failed! Build #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+        }
+        always {
+            echo '📋 CI/CD Pipeline finished.'
         }
     }
 }
