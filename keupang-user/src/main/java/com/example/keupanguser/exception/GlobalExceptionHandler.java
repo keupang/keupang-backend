@@ -12,15 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    //IllegalArgumentException
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
-        log.error("에러발생 : {}",ex.getMessage());
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST) // 400 Bad Request 반환
-            .body(Map.of("error", ex.getMessage()));
-    }
-
     //커스텀 예외처리
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {

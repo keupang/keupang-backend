@@ -6,6 +6,7 @@ import com.example.keupanguser.jwt.JwtTokenProvider;
 import com.example.keupanguser.repository.UserRepository;
 import com.example.keupanguser.request.LoginRequest;
 import com.example.keupanguser.request.UserRequest;
+import com.example.keupanguser.response.LoginResponse;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    public String userLogin(LoginRequest loginRequest) {
+    public LoginResponse userLogin(LoginRequest loginRequest) {
         // 이메일로 사용자 조회
         User user = userRepository.findByUserEmail(loginRequest.userEmail())
             .orElseThrow(() -> new CustomException(
@@ -75,13 +76,16 @@ public class UserService {
         redisTemplate.opsForValue().set(redisKey, token, Duration.ofHours(2)); // 2시간 만료
 
         log.info("redis 저장 : {} = {}", redisKey, token);
-        return token;
+
+        return new LoginResponse(user.getUserName(), token);
     }
 
-    public void logout(String userEmail) {
-        String redisKey = "user:token:" + userEmail;
+    public String logout(String token) {
+        String redisKey = "user:token:" + token;
         redisTemplate.delete(redisKey);
         log.info("Redis에서 삭제: {}", redisKey);
+
+        return jwtTokenProvider.getEmail(token);
     }
 
     public String generateVerificationCode(String email){
