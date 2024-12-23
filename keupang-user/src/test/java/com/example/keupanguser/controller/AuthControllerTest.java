@@ -95,6 +95,5 @@ class AuthControllerTest {
                 .contentType("application/json"))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.error").value("Invalid email or password.")); // JSON 응답 검증
-
     }
 }
