@@ -58,15 +58,20 @@ class AuthControllerTest {
         // 디버그: Mock 설정 d확인
         System.out.println("Mock 설정 확인: " + userService.userLogin(loginRequest));
 
+        // JSON 요청 데이터 작성
+        String jsonRequest = """
+        {
+            "userEmail": "cj855695@gmail.com",
+            "userPassword": "1234"
+        }
+        """;
+
         // When & Then
         mockMvc.perform(post("/api/auth/login")
-                .param("userEmail", "cj855695@gmail.com")
-                .param("userPassword", "1234")
-                .contentType("application/x-www-form-urlencoded"))
+                .content(jsonRequest)
+                .contentType("application/json"))
             .andExpect(status().isOk())
-            .andExpect(result ->
-                assertEquals("mockedJwtToken", result.getResponse().getContentAsString()) // 반환값 검증
-            );
+            .andExpect(jsonPath("$.token").value(mockToken)); // JSON 응답의 token 필드 검증
     }
 
     @Test
@@ -75,11 +80,19 @@ class AuthControllerTest {
         when(userService.userLogin(any(LoginRequest.class)))
             .thenThrow(new IllegalArgumentException("Invalid email or password."));
 
+        // JSON 요청 데이터 작성
+        String jsonRequest = """
+        {
+            "userEmail": "invalid@example.com",
+            "userPassword": "wrongpassword"
+        }
+        """;
+
+
         // When & Then
         mockMvc.perform(post("/api/auth/login")
-                .param("userEmail", "invalid@example.com")
-                .param("userPassword", "wrongpassword")
-                .contentType("application/x-www-form-urlencoded"))
+                .content(jsonRequest)
+                .contentType("application/json"))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.error").value("Invalid email or password.")); // JSON 응답 검증
 
