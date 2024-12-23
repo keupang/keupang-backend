@@ -86,3 +86,6 @@ webroot: /Users/choijonghak/.jenkins/war
 2024-12-22 16:00:41.335+0000 [id=15]	INFO	o.j.p.g.w.s.DefaultPushGHEventSubscriber#onEvent: Received PushEvent for https://github.com/keupang/keupang-backend from 140.82.115.62 ⇒ https://delicate-feline-ultimately.ngrok-free.app:8080/github-webhook/
 2024-12-22 16:00:41.342+0000 [id=15]	INFO	o.j.p.g.w.s.DefaultPushGHEventSubscriber$1#run: Poked keupang
 2024-12-22 16:00:42.516+0000 [id=205]	INFO	c.c.jenkins.GitHubPushTrigger$1#run: SCM changes detected in keupang. Triggering #32
+2024-12-23 06:41:38.521+0000 [id=88]	INFO	o.j.p.g.w.s.DefaultPushGHEventSubscriber#onEvent: Received PushEvent for https://github.com/keupang/keupang-backend from 140.82.115.168 ⇒ https://delicate-feline-ultimately.ngrok-free.app:8080/github-webhook/
+2024-12-23 06:41:38.522+0000 [id=88]	INFO	o.j.p.g.w.s.DefaultPushGHEventSubscriber$1#run: Poked keupang
+2024-12-23 06:41:39.637+0000 [id=1333]	INFO	c.c.jenkins.GitHubPushTrigger$1#run: SCM changes detected in keupang. Triggering #33

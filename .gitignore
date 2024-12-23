@@ -47,3 +47,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### nohup.out ###
+nohup.out
