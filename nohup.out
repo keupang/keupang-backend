@@ -83,3 +83,6 @@ webroot: /Users/choijonghak/.jenkins/war
 2024-12-22 15:42:12.759+0000 [id=26]	INFO	hudson.lifecycle.Lifecycle#onReady: Jenkins is fully up and running
 2024-12-22 15:51:00.031+0000 [id=18]	INFO	h.p.b.g.GlobalTimeOutConfiguration#configure: global timeout has been cleared
 2024-12-22 15:51:11.913+0000 [id=16]	INFO	h.p.b.g.GlobalTimeOutConfiguration#configure: global timeout has been cleared
+2024-12-22 16:00:41.335+0000 [id=15]	INFO	o.j.p.g.w.s.DefaultPushGHEventSubscriber#onEvent: Received PushEvent for https://github.com/keupang/keupang-backend from 140.82.115.62 ⇒ https://delicate-feline-ultimately.ngrok-free.app:8080/github-webhook/
+2024-12-22 16:00:41.342+0000 [id=15]	INFO	o.j.p.g.w.s.DefaultPushGHEventSubscriber$1#run: Poked keupang
+2024-12-22 16:00:42.516+0000 [id=205]	INFO	c.c.jenkins.GitHubPushTrigger$1#run: SCM changes detected in keupang. Triggering #32
