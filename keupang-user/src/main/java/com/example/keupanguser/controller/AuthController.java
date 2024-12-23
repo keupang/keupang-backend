@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,12 +29,15 @@ public class AuthController {
     private final EmailService emailService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@ModelAttribute LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         log.info("LoginRequest: {}", loginRequest);
         log.info("UserService class: {}", userService.getClass()); // Mock 객체 확인
         String token = userService.userLogin(loginRequest);
         log.info("Generated Token: {}", token);
-        return ResponseEntity.ok(token);
+
+        // JSON 형태로 반환
+        Map<String, String> response = Map.of("token", token);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
