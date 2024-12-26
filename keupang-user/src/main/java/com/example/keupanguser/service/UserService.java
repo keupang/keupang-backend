@@ -105,4 +105,8 @@ public class UserService {
         log.warn("Verification failed for email {}: provided code {}", email, code);
         return false;
     }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
 }
