@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class UserController {
     private final UserService userService;
-    @PostMapping("/users")
+    @PostMapping()
     public ResponseEntity<?> getUsers(@ModelAttribute UserRequest userRequest) {
         log.debug(userRequest.getUserPassword());
         User user1 = userService.registerUser(userRequest);
