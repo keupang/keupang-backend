@@ -8,8 +8,6 @@ import com.example.keupanguser.request.LoginRequest;
 import com.example.keupanguser.request.UserRequest;
 import com.example.keupanguser.response.LoginResponse;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,7 +24,9 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final Map<String, String> verificationCodes = new HashMap<>();
+    private static final long JWT_EXPIRE_TIME = 2; // JWT 만료 시간
+    private static final long EMAIL_CODE_EXPIRE_TIME = 5; // EMAIL_CODE 만료 시간
+
 
     public User registerUser(UserRequest user) {
         log.debug("userPassword: {}", user.getUserPassword());
@@ -73,7 +73,8 @@ public class UserService {
 
         // Redis에 토큰 저장
         String redisKey = "user:token:" + user.getUserEmail();
-        redisTemplate.opsForValue().set(redisKey, token, Duration.ofHours(2)); // 2시간 만료
+        redisTemplate.opsForValue()
+            .set(redisKey, token, Duration.ofHours(JWT_EXPIRE_TIME)); //JWT 만료
 
         log.info("redis 저장 : {} = {}", redisKey, token);
 
@@ -88,18 +89,21 @@ public class UserService {
         return jwtTokenProvider.getEmail(token);
     }
 
-    public String generateVerificationCode(String email){
-        String code = String.format("%06d", (int)(Math.random() * 1_000_000));
-        verificationCodes.put(email, code);
-        log.info("Generated verification code for {}: {}", email, code);
+    public String generateVerificationCode(String email) {
+        String code = String.format("%06d", (int) (Math.random() * 1_000_000));
+        String redisKey = "email:verification:" + email;
+        redisTemplate.opsForValue()
+            .set(redisKey, code, Duration.ofMinutes(EMAIL_CODE_EXPIRE_TIME)); //이메일 인증 코드 만료
+        log.info("Generated verification code to Redis {}: {}", redisKey, code);
         return code;
     }
 
-    public boolean verifyCode(String email, String code){
-        String savedCode = verificationCodes.get(email);
-        if(savedCode != null && savedCode.equals(code)){
-            verificationCodes.remove(email);
-            log.info("Email {} verified successfully.", email);
+    public boolean verifyCode(String email, String code) {
+        String redisKey = "email:verification:" + email;
+        String savedCode = (String) redisTemplate.opsForValue().get(redisKey);
+        if (savedCode != null && savedCode.equals(code)) {
+            redisTemplate.delete(redisKey); //인증 후 코드 삭제
+            log.info("Verification code for {} verified successfully.", email);
             return true;
         }
         log.warn("Verification failed for email {}: provided code {}", email, code);
