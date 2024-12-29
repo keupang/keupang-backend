@@ -26,9 +26,18 @@ public class JwtAuthenticationFilter implements WebFilter {
 
         String token = authorizationHeader.substring(7); //Bearer 제거
         try{
-            Jwts.parser()
-                .setSigningKey()
+            Claims claims = Jwts.parser()
+            .setSigningKey(jwtSecret.getBytes())
+            .parseClaimsJws(token)
+            .getBody();
+
+            // Role, Email 등 필요한 정보 추출
+            exchange.getAttributes().put("userEmail", claims.get("email"));
+            exchange.getAttributes().put("userRole", claims.get("role"));
+        }catch (Exception ex){
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
         }
-        return null;
+        return chain.filter(exchange);
     }
 }
