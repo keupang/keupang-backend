@@ -74,6 +74,8 @@ public class SecurityConfig {
         configuration.addAllowedOriginPattern("https://api.keupang.store"); // 모든 도메인 허용
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
+        configuration.addExposedHeader("accessToken"); // 노출할 헤더 설정
+        configuration.addExposedHeader("refreshToken"); // 노출할 헤더 설정
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
