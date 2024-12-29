@@ -57,4 +57,4 @@ openapi:
 
 logging:
     level:
-        org.springframework.cloud.config.server: DEBUG
+        org.springframework: DEBUG
