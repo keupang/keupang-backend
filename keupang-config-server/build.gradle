@@ -39,6 +39,16 @@ dependencies {
     //security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    //test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    //junit
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //httpclient
+    implementation("org.apache.httpcomponents:httpclient:4.5.14")
+
 }
 
 dependencyManagement {

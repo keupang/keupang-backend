@@ -1,0 +1,17 @@
+spring:
+    application:
+        name: product
+    profiles:
+        active: dev
+    config:
+        import: optional:configserver:http://${security_username}:${security_password}@config-server:9000
+
+eureka:
+    client:
+        fetch-registry: true
+        register-with-eureka: true
+        service-url:
+            defaultZone: http://${security_username}:${security_password}@eureka-server:8761/eureka
+    instance:
+        instance-id: product-service-${spring.application.instance-id:${random.value}}
+        prefer-ip-address: true

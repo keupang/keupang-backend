@@ -1,13 +1,56 @@
 spring:
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: ${google_username}
+        password: ${google_password}
+        properties:
+          mail:
+              smtp:
+                  auth: true
+                  starttls:
+                      enable: true
+    data:
+      redis:
+          host: service-redis
+          port: 6379
+
     application:
         name: user
     profiles:
         active: dev
+
     config:
-        import: optional:configserver:http://admin:admin@localhost:9000
-#eureka:
-#    client:
-#        fetch-registry: true
-#        register-with-eureka: true
-#        service-url:
-#            defaultZone: http://admin:admin@localhost:8761/eureka
+        import: configserver:http://${security_username}:${security_password}@config-server:9000
+    datasource:
+        url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${USER_DB_NAME}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+        driver-class-name: com.mysql.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+        database-platform: org.hibernate.dialect.MySQLDialect
+        open-in-view: false
+
+eureka:
+    client:
+        fetch-registry: true
+        register-with-eureka: true
+        service-url:
+            defaultZone: http://${security_username}:${security_password}@eureka-server:8761/eureka
+    instance:
+        instance-id: user-service-${spring.application.instance-id:${random.value}}
+        prefer-ip-address: true
+
+springdoc:
+    api-docs:
+        path: /user/v3/api-docs
+    swagger-ui:
+        path: /user/swagger-ui.html
+
+openapi:
+    service:
+        # API Gateway 포트
+        url: https://api.keupang.store

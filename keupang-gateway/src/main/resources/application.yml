@@ -1,0 +1,63 @@
+spring:
+    application:
+        name: keupang-gateway
+
+    cloud:
+        gateway:
+            globalcors:
+                cors-configurations:
+                    '[/**]':
+                        allowedOrigins: "*"
+                        allowedMethods:
+                            - GET
+                            - POST
+                            - PUT
+                            - DELETE
+                            - OPTIONS
+                        allowedHeaders:
+                            - "*"
+
+            routes:
+                - id: user
+                  uri:
+                    lb://user
+                  predicates:
+                    - Path=/api/user/**
+                - id: auth
+                  uri:
+                    lb://user
+                  predicates:
+                    - Path=/api/auth/**
+                -   id: user-swagger
+                    uri:
+                        lb://user
+                    predicates:
+                        - Path=/user/**
+                - id: product
+                  uri:
+                    lb://product
+                  predicates:
+                    - Path=/api/product/**
+            discovery:
+                locator:
+                    enabled: true
+
+server:
+    port: 8080
+
+eureka:
+    client:
+        register-with-eureka: true
+        fetch-registry: true
+        service-url:
+            defaultZone: http://${security_username}:${security_password}@eureka-server:8761/eureka
+
+springdoc:
+    swagger-ui:
+        path: /swagger-ui.html
+        urls:
+            - url: /user/v3/api-docs
+              name: user
+        enabled: true
+    api-docs:
+        enabled: true

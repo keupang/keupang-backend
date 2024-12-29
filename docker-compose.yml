@@ -1,0 +1,104 @@
+services:
+    mysql:
+        image: mysql:8.0.39
+        container_name: service-mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: ${USER_DB_NAME}
+            TZ: Asia/Seoul
+        ports:
+            - "3307:${DB_PORT}"
+        volumes:
+            - ./mysql-data:/var/lib/mysql
+        networks:
+            - msa-network
+    redis:
+        image: redis:latest
+        container_name: service-redis
+        ports:
+            - "6379:6379"
+        volumes:
+            - ./redis-data:/data # 데이터 지속화를 위한 volume
+        networks:
+            - msa-network
+
+    config-server:
+        image: playdodo/keupang-config-server:1.0
+        container_name: keupang-config-server
+        platform: linux/arm64
+        ports:
+            - "9000:9000"
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod
+            - private_key=${private_key}
+        networks:
+            - msa-network
+
+    api-gateway:
+        image: playdodo/keupang-api-gateway:1.0
+        container_name: keupang-api-gateway
+        platform: linux/arm64
+        ports:
+            - "8080:8080"
+        depends_on:
+            - eureka-server
+        environment:
+            - security_username=${security_username}
+            - security_password=${security_password}
+        networks:
+            - msa-network
+
+    service-user:
+        image: playdodo/keupang-service-user:1.0
+        container_name: keupang-service-user
+        platform: linux/arm64
+        deploy:
+            mode: replicated
+            restart_policy:
+                condition: on-failure
+        depends_on:
+            - redis
+            - eureka-server
+            - config-server
+            - mysql
+        environment:
+            - REDIS_HOST=service-redis
+            - REDIS_PORT=6379
+            - security_username=${security_username}
+            - security_password=${security_password}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+            - DB_USERNAME=${DB_USERNAME}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - USER_DB_NAME=${USER_DB_NAME}
+            - google_username=${google_username}
+            - google_password=${google_password}
+        networks:
+            - msa-network
+
+    service-product:
+        image: playdodo/keupang-service-product:1.0
+        container_name: keupang-service-product
+        platform: linux/arm64
+        ports:
+            - "8082:8082"
+        depends_on:
+            - eureka-server
+            - config-server
+        environment:
+            - security_username=${security_username}
+            - security_password=${security_password}
+        networks:
+            - msa-network
+
+    eureka-server:
+        image: playdodo/keupang-eureka-server:1.0
+        container_name: keupang-eureka-server
+        platform: linux/arm64
+        ports:
+            - "8761:8761"
+        networks:
+            - msa-network
+networks:
+    msa-network:
+        driver: bridge

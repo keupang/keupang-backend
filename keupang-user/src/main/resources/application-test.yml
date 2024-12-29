@@ -1,0 +1,34 @@
+spring:
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: ${google_username}
+        password: ${google_password}
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+
+    datasource:
+        url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+        username: sa
+        password:
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
+        show-sql: true
+    application:
+        name: user-test
+    config:
+        import: optional:configserver:http://dummy-config-server:9000
+
+eureka:
+    client:
+        enabled: false
+
+openapi:
+    service:
+        # API Gateway 포트
+        url: http://localhost:8080
