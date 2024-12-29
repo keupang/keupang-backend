@@ -69,7 +69,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true); // 인증 정보 허용
-        configuration.addAllowedOriginPattern("*"); // 모든 도메인 허용
+        configuration.addAllowedOriginPattern("http://localhost:5173"); // 모든 도메인 허용
+        configuration.addAllowedOriginPattern("https://www.keupang.store"); // 모든 도메인 허용
+        configuration.addAllowedOriginPattern("https://api.keupang.store"); // 모든 도메인 허용
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
 
