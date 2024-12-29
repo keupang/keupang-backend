@@ -7,7 +7,6 @@ import com.example.keupanguser.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -57,7 +56,7 @@ public class SecurityConfig {
             .cors(cors-> cors
                 .configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-                .requestMatchers(HttpMethod.OPTIONS, "/api/user/**", "/api/auth/**", "/user/**")
+                .requestMatchers("/api/user/**", "/api/auth/**", "/user/**")
                 .permitAll()  // 로그인, 회원가입 엔드포인트 허용
                 .anyRequest().authenticated())
             .formLogin(AbstractHttpConfigurer::disable)
@@ -75,6 +74,7 @@ public class SecurityConfig {
         configuration.addAllowedOriginPattern("https://api.keupang.store"); // 모든 도메인 허용
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
+        configuration.addExposedHeader("Authorization"); // 노출할 헤더 설정
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
