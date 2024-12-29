@@ -61,3 +61,6 @@ springdoc:
         enabled: true
     api-docs:
         enabled: true
+logging:
+    level:
+        org.springframework.cloud.config.server: DEBUG
