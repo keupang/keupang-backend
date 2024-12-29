@@ -71,7 +71,7 @@ public class UserService {
         String token = jwtTokenProvider.createToken(loginRequest.userEmail(),
             String.valueOf(user.getRole()));
 
-        // Redis에 토큰 저장
+        // redis 에 토큰 저장
         String redisKey = "user:token:" + user.getUserEmail();
         redisTemplate.opsForValue()
             .set(redisKey, token, Duration.ofHours(JWT_EXPIRE_TIME)); //JWT 만료
@@ -84,7 +84,7 @@ public class UserService {
     public String logout(String token) {
         String redisKey = "user:token:" + token;
         redisTemplate.delete(redisKey);
-        log.info("Redis에서 삭제: {}", redisKey);
+        log.info("redis 삭제: {}", redisKey);
 
         return jwtTokenProvider.getEmail(token);
     }
