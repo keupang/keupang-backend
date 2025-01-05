@@ -58,7 +58,7 @@ public class SecurityConfig {
             .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                 .requestMatchers("/api/user/**", "/api/auth/**", "/user/**")
                 .permitAll()  // 로그인, 회원가입 엔드포인트 허용
-                .anyRequest().authenticated())
+                .anyRequest().permitAll()) //모든 요청 허용
             .formLogin(AbstractHttpConfigurer::disable)
             .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
         ;
@@ -69,9 +69,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true); // 인증 정보 허용
-        configuration.addAllowedOriginPattern("http://localhost:5173"); // 모든 도메인 허용
-        configuration.addAllowedOriginPattern("https://www.keupang.store"); // 모든 도메인 허용
-        configuration.addAllowedOriginPattern("https://api.keupang.store"); // 모든 도메인 허용
+        configuration.addAllowedOriginPattern("http://localhost:5173"); // 프론트 로컬 도메인 허용
+        configuration.addAllowedOriginPattern("https://www.keupang.store"); // 프론트 도메인 허용
+        configuration.addAllowedOriginPattern("https://api.keupang.store"); // 백엔드 도메인 허용
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.addExposedHeader("Authorization"); // 노출할 헤더 설정
