@@ -54,8 +54,6 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors-> cors
-                .configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                 .requestMatchers("/api/user/**", "/api/auth/**", "/user/**")
                 .permitAll()  // 로그인, 회원가입 엔드포인트 허용
@@ -65,21 +63,5 @@ public class SecurityConfig {
             .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
         ;
         return http.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowCredentials(true); // 인증 정보 허용
-        configuration.addAllowedOrigin("http://localhost:5173"); // 프론트 로컬 도메인 허용
-//        configuration.addAllowedOrigin("https://www.keupang.store"); // 프론트 도메인 허용
-//        configuration.addAllowedOrigin("https://api.keupang.store"); // 백엔드 도메인 허용
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
-        configuration.addExposedHeader("Authorization"); // 노출할 헤더 설정
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }

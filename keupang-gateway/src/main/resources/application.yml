@@ -7,7 +7,10 @@ spring:
             globalcors:
                 cors-configurations:
                     '[/**]':
-                        allowedOrigins: "*"
+                        allowedOrigins:
+                            - "http://localhost:5173"
+                            - "https://www.keupang.store"
+                            - "https://api.keupang.store"
                         allowedMethods:
                             - GET
                             - POST
@@ -16,6 +19,7 @@ spring:
                             - OPTIONS
                         allowedHeaders:
                             - "*"
+                        allowCredentials: true
 
             routes:
                 - id: user
