@@ -7,6 +7,7 @@ import com.example.keupanguser.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -58,6 +59,7 @@ public class SecurityConfig {
             .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                 .requestMatchers("/api/user/**", "/api/auth/**", "/user/**")
                 .permitAll()  // 로그인, 회원가입 엔드포인트 허용
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().permitAll()) //모든 요청 허용
             .formLogin(AbstractHttpConfigurer::disable)
             .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
