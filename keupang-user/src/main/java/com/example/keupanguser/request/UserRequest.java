@@ -8,12 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserRequest {
-    @Schema(description = "이메일", type = "integer")
+    @Schema(description = "이메일", type = "string")
     private String userEmail;
-    @Schema(description = "비번", type = "integer")
+    @Schema(description = "비번", type = "string")
     private String userPassword;
-    @Schema(description = "이름", type = "integer")
+    @Schema(description = "이름", type = "string")
     private String userName;
-    @Schema(description = "전화번호", type = "integer")
+    @Schema(description = "전화번호", type = "string")
     private String userPhone;
 }
