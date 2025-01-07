@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -28,15 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
     @PostMapping("/register")
-    public ResponseEntity<?> getUsers(
-        @Parameter(
-            description = "회원가입 요청 데이터",
-            required = true,
-            in = ParameterIn.DEFAULT,
-            schema = @Schema(implementation = UserRequest.class)
-        )
-        @ModelAttribute UserRequest userRequest
-    ) {
+    public ResponseEntity<?> getUsers(@ParameterObject UserRequest userRequest) {
         log.debug(userRequest.getUserPassword());
         User user1 = userService.registerUser(userRequest);
         if(user1 == null){
