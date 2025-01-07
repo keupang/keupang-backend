@@ -1,5 +1,6 @@
 package com.example.keupanguser.service;
 
+import com.example.keupanguser.domain.Role;
 import com.example.keupanguser.domain.User;
 import com.example.keupanguser.exception.CustomException;
 import com.example.keupanguser.jwt.JwtTokenProvider;
@@ -41,7 +42,7 @@ public class UserService {
         }
 
         User newUser = User.builder().userName(user.getUserName()).userEmail(user.getUserEmail())
-            .role(user.getRole()).userPhone(user.getUserPhone())
+            .role(Role.USER).userPhone(user.getUserPhone())
             .userPassword(passwordEncoder.encode(user.getUserPassword())).build();
         return userRepository.save(newUser);
     }
