@@ -4,6 +4,9 @@ import com.example.keupanguser.domain.User;
 import com.example.keupanguser.exception.CustomException;
 import com.example.keupanguser.request.UserRequest;
 import com.example.keupanguser.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +28,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
     @PostMapping("/register")
-    public ResponseEntity<?> getUsers(@ModelAttribute UserRequest userRequest) {
+    public ResponseEntity<?> getUsers(
+        @Parameter(
+            description = "회원가입 요청 데이터",
+            required = true,
+            in = ParameterIn.DEFAULT,
+            schema = @Schema(implementation = UserRequest.class)
+        )
+        @ModelAttribute UserRequest userRequest
+    ) {
         log.debug(userRequest.getUserPassword());
         User user1 = userService.registerUser(userRequest);
         if(user1 == null){
