@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,8 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class UserController {
     private final UserService userService;
-    @PostMapping()
-    public ResponseEntity<?> getUsers(@ModelAttribute UserRequest userRequest) {
+    @PostMapping("/register")
+    public ResponseEntity<?> getUsers(@RequestBody UserRequest userRequest) {
         log.debug(userRequest.getUserPassword());
         User user1 = userService.registerUser(userRequest);
         if(user1 == null){
