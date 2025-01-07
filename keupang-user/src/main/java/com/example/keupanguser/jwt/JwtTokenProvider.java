@@ -24,12 +24,12 @@ public class JwtTokenProvider {
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder().setSubject(email).claim("role", role).setIssuedAt(now)
-            .setExpiration(validity).signWith(SignatureAlgorithm.ES256, privateKey).compact();
+            .setExpiration(validity).signWith(privateKey).compact();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(publicKey).parseClaimsJwt(token);
+            Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJwt(token);
             return true;
         } catch (Exception e) {
             log.error("이상한 토큰 이잖아 저리가", e);
@@ -38,6 +38,6 @@ public class JwtTokenProvider {
     }
 
     public String getEmail(String token) {
-        return Jwts.parser().setSigningKey(publicKey).parseClaimsJwt(token).getBody().getSubject();
+        return Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJwt(token).getBody().getSubject();
     }
 }
