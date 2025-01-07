@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
     @PostMapping("/register")
-    public ResponseEntity<?> getUsers(@ParameterObject UserRequest userRequest) {
+    public ResponseEntity<?> getUsers(@ModelAttribute UserRequest userRequest) {
         log.debug(userRequest.getUserPassword());
         User user1 = userService.registerUser(userRequest);
         if(user1 == null){
