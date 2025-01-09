@@ -34,6 +34,10 @@ public class AuthController {
         LoginResponse loginResponse = userService.userLogin(loginRequest);
         log.info("Generated Token: {}", loginResponse.token());
 
+        // "content" 필드 값 추가
+        Map<String, Object> content = new HashMap<>();
+        content.put("detail", "로그인에 성공했습니다.");
+
         // "data" 필드 값 추가
         Map<String, Object> data = new HashMap<>();
         data.put("token", loginResponse.token());
@@ -42,8 +46,9 @@ public class AuthController {
         // 응답 생성
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("status", 200);
-        responseBody.put("code", 20000);
-        responseBody.put("message", "로그인에 성공 했습니다.");
+        responseBody.put("code", 20001);
+        responseBody.put("message", "SUCCESS_LOGIN");
+        responseBody.put("content", content);
         responseBody.put("data", data); // "data" 필드 추가
         return ResponseEntity.ok(responseBody);
     }
@@ -58,6 +63,11 @@ public class AuthController {
         }
 
         String userEmail = userService.logout(token);
+
+        // "content" 필드 값 추가
+        Map<String, Object> content = new HashMap<>();
+        content.put("detail", "로그아웃에 성공했습니다.");
+
         // "data" 필드 값 추가
         Map<String, Object> data = new HashMap<>();
         data.put("userEmail", userEmail);
@@ -65,8 +75,9 @@ public class AuthController {
         // 응답 생성
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("status", 200);
-        responseBody.put("code", 20000);
-        responseBody.put("message", "로그아웃에 성공 했습니다.");
+        responseBody.put("code", 20002);
+        responseBody.put("message", "SUCCESS_LOGOUT");
+        responseBody.put("content", content);
         responseBody.put("data", data); // "data" 필드 추가
 
         return ResponseEntity.ok(responseBody);
@@ -85,6 +96,11 @@ public class AuthController {
 
         // 이메일 전송
         emailService.sendEmail(email, subject, body);
+
+        // "content" 필드 값 추가
+        Map<String, Object> content = new HashMap<>();
+        content.put("detail", "인증 번호가" + email + "로 전송되었습니다.");
+
         // "data" 필드 값 추가
         Map<String, Object> data = new HashMap<>();
         data.put("userEmail", email);
@@ -92,8 +108,9 @@ public class AuthController {
         // 응답 생성
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("status", 200);
-        responseBody.put("code", 20000);
-        responseBody.put("message", "인증 번호가" + email + "로 전송되었습니다.");
+        responseBody.put("code", 20003);
+        responseBody.put("message", "SUCCESS_EMAIL_VERIFICATION_TOKEN_ISSUED");
+        responseBody.put("content", content);
         responseBody.put("data", data); // "data" 필드 추가
 
         return ResponseEntity.ok(responseBody);
@@ -105,6 +122,10 @@ public class AuthController {
         boolean isVerified = userService.verifyCode(email, code);
 
         if (isVerified) {
+            // "content" 필드 값 추가
+            Map<String, Object> content = new HashMap<>();
+            content.put("detail", "이메일 인증이 완료되었습니다.");
+
             // "data" 필드 값 추가
             Map<String, Object> data = new HashMap<>();
             data.put("userEmail", email);
@@ -113,7 +134,8 @@ public class AuthController {
             Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("status", 200);
             responseBody.put("code", 20000);
-            responseBody.put("message", "이메일 인증이 완료되었습니다.");
+            responseBody.put("message","SUCCESS_EMAIL_VERIFICATION");
+            responseBody.put("content", content);
             responseBody.put("data", data); // "data" 필드 추가
 
             return ResponseEntity.ok(responseBody);
@@ -122,7 +144,7 @@ public class AuthController {
                 HttpStatus.BAD_REQUEST,
                 40101,
                 "인증 토큰이 올바르지 않거나 만료되었습니다.",
-                "인증 번호를 다시 받은 후에 시도 해 주세요.",
+                "인증 번호를 다시 받은 후에 시도 해주세요.",
                 "INVALID_VERIFY_TOKEN"
             );
         }
