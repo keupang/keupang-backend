@@ -135,7 +135,7 @@ public class AuthController {
             responseBody.put("status", 200);
             responseBody.put("code", 20000);
             responseBody.put("message","SUCCESS_EMAIL_VERIFICATION");
-            responseBody.put("content", content)
+            responseBody.put("content", content);
             responseBody.put("data", data); // "data" 필드 추가
 
             return ResponseEntity.ok(responseBody);
