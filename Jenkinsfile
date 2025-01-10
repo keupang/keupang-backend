@@ -27,6 +27,7 @@ pipeline {
                 ./gradlew clean build -p keupang-gateway
                 ./gradlew clean build -p keupang-product
                 ./gradlew clean build -p keupang-user
+                ./gradlew clean build -p keupang-auth
                 '''
             }
         }
@@ -45,6 +46,7 @@ pipeline {
                     docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-api-gateway:1.0 ./keupang-gateway --push
                     docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-service-product:1.0 ./keupang-product --push
                     docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-service-user:1.0 ./keupang-user --push
+                    docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-service-auth:1.0 ./keupang-auth --push
                     '''
                 }
             }
