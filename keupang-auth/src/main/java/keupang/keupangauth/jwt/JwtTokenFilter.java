@@ -1,10 +1,9 @@
-package com.example.keupanguser.jwt;
+package keupang.keupangauth.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.core.SecurityContext;
 import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
