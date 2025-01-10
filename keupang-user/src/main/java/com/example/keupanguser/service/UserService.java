@@ -90,9 +90,14 @@ public class UserService {
 
     public String logout(String token) {
         // Auth Service 에 로그아웃 요청
-        String email = authClient.logout("Bearer " + token);
-        log.info("JWT 로그아웃 완료: {}", token);
-        return email;
+        try {
+            String email = authClient.logout("Bearer " + token);
+            log.info("JWT 로그아웃 완료: {}", token);
+            return email;
+        } catch (Exception e) {
+            throw new CustomException(HttpStatus.SERVICE_UNAVAILABLE, 50301,
+                "현재 인증 서비스를 이용할 수 없습니다.", "담당자에게 문의 후 서비스 다시 시도해주시기 바랍니다.", "SERVICE_UNAVAILABLE");
+        }
     }
 
     public String generateVerificationCode(String email) {
