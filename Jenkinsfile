@@ -22,12 +22,7 @@ pipeline {
                 echo 'Building all projects...'
                 sh '''
                 # 각 프로젝트를 Gradle로 빌드
-                ./gradlew clean build -p keupang-config-server
-                ./gradlew clean build -p keupang-eureka-server
-                ./gradlew clean build -p keupang-gateway
-                ./gradlew clean build -p keupang-product
-                ./gradlew clean build -p keupang-user
-                ./gradlew clean build -p keupang-auth
+                ./gradlew clean build
                 '''
             }
         }
