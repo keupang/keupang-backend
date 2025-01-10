@@ -3,6 +3,8 @@ spring:
         name: auth
     profiles:
         active: dev
+    config:
+        import: configserver:http://${security_username}:${security_password}@config-server:9000
     data:
         redis:
             host: service-redis
