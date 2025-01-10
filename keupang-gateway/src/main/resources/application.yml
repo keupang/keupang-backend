@@ -39,9 +39,9 @@ spring:
                         - Path=/user/**
                 -   id: auth-swagger
                     uri:
-                      lb://auth
+                        lb://auth
                     predicates:
-                      - Path=/auth/**
+                        - Path=/auth/**
                 -   id: product
                     uri:
                         lb://product

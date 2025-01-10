@@ -5,6 +5,7 @@ import com.example.keupanguser.exception.CustomException;
 import com.example.keupanguser.request.LoginRequest;
 import com.example.keupanguser.request.UserRequest;
 import com.example.keupanguser.response.LoginResponse;
+import com.example.keupanguser.service.EmailService;
 import com.example.keupanguser.service.UserService;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final EmailService emailService;
 
     @PostMapping("/register")
     public ResponseEntity<?> getUsers(@ModelAttribute UserRequest userRequest) {
@@ -138,5 +141,72 @@ public class UserController {
         responseBody.put("data", data); // "data" 필드 추가
 
         return ResponseEntity.ok(responseBody);
+    }
+
+    @PostMapping("/send-verification-email")
+    public ResponseEntity<?> sendVerificationEmail(@RequestParam String email) {
+        // 인증 토큰
+        String verificationCode = userService.generateVerificationCode(email);
+
+        // 이메일 내용
+        String subject = "Keupang 이메일 인증";
+        String body = "<h1>Your Verification Code</h1>"
+            + "<p>Your verification code is:</p>"
+            + "<h2>" + verificationCode + "</h2>";
+
+        // 이메일 전송
+        emailService.sendEmail(email, subject, body);
+
+        // "content" 필드 값 추가
+        Map<String, Object> content = new HashMap<>();
+        content.put("detail", "인증 번호가" + email + "로 전송되었습니다.");
+
+        // "data" 필드 값 추가
+        Map<String, Object> data = new HashMap<>();
+        data.put("userEmail", email);
+
+        // 응답 생성
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("status", 200);
+        responseBody.put("code", 20003);
+        responseBody.put("message", "SUCCESS_EMAIL_VERIFICATION_TOKEN_ISSUED");
+        responseBody.put("content", content);
+        responseBody.put("data", data); // "data" 필드 추가
+
+        return ResponseEntity.ok(responseBody);
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestParam String email, @RequestParam String code) {
+        // 인증 코드 검증
+        boolean isVerified = userService.verifyCode(email, code);
+
+        if (isVerified) {
+            // "content" 필드 값 추가
+            Map<String, Object> content = new HashMap<>();
+            content.put("detail", "이메일 인증이 완료되었습니다.");
+
+            // "data" 필드 값 추가
+            Map<String, Object> data = new HashMap<>();
+            data.put("userEmail", email);
+
+            // 응답 생성
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("status", 200);
+            responseBody.put("code", 20000);
+            responseBody.put("message","SUCCESS_EMAIL_VERIFICATION");
+            responseBody.put("content", content);
+            responseBody.put("data", data); // "data" 필드 추가
+
+            return ResponseEntity.ok(responseBody);
+        } else {
+            throw new CustomException(
+                HttpStatus.BAD_REQUEST,
+                40101,
+                "인증 토큰이 올바르지 않거나 만료되었습니다.",
+                "인증 번호를 다시 받은 후에 시도 해주세요.",
+                "INVALID_VERIFY_TOKEN"
+            );
+        }
     }
 }
