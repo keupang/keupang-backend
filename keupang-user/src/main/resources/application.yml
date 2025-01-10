@@ -5,15 +5,15 @@ spring:
         username: ${google_username}
         password: ${google_password}
         properties:
-          mail:
-              smtp:
-                  auth: true
-                  starttls:
-                      enable: true
-    data:
-      redis:
-          host: service-redis
-          port: 6379
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+#    data:
+#        redis:
+#            host: service-redis
+#            port: 6379
 
     application:
         name: user
@@ -54,7 +54,3 @@ openapi:
     service:
         # API Gateway 포트
         url: https://api.keupang.store
-
-logging:
-    level:
-        org.springframework: DEBUG

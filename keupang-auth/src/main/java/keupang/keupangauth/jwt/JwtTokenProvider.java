@@ -1,4 +1,4 @@
-package com.example.keupanguser.jwt;
+package keupang.keupangauth.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -40,4 +40,9 @@ public class JwtTokenProvider {
     public String getEmail(String token) {
         return Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJwt(token).getBody().getSubject();
     }
+
+    public String getRole(String token){
+        return (String) Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJwt(token).getBody().get("role");
+    }
+
 }
