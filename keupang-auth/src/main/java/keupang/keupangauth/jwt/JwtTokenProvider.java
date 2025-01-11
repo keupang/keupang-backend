@@ -29,7 +29,7 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJwt(token);
+            Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             log.error("이상한 토큰 이잖아 저리가", e);
