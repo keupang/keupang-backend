@@ -23,8 +23,13 @@ public class JwtTokenProvider {
         long validityInMilliseconds = 360000;
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
-        return Jwts.builder().setSubject(email).claim("role", role).setIssuedAt(now)
-            .setExpiration(validity).signWith(privateKey).compact();
+        return Jwts.builder()
+            .setSubject(email)
+            .claim("role", role)
+            .setIssuedAt(now)
+            .setExpiration(validity)
+            .signWith(privateKey)
+            .compact();
     }
 
     public boolean validateToken(String token) {
@@ -38,11 +43,11 @@ public class JwtTokenProvider {
     }
 
     public String getEmail(String token) {
-        return Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJwt(token).getBody().getSubject();
+        return Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJws(token).getBody().getSubject();
     }
 
     public String getRole(String token){
-        return (String) Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJwt(token).getBody().get("role");
+        return (String) Jwts.parserBuilder().setSigningKey(publicKey).build().parseClaimsJws(token).getBody().get("role");
     }
 
 }
