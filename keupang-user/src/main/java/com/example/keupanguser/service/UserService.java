@@ -124,4 +124,20 @@ public class UserService {
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElse(null);
     }
+
+    //jwt 검증 (모든 서비스에서 필요할 예정)
+    public void validateToken(String token) {
+        Map<String, Object> authResponse = authClient.validateToken(token);
+        String role = (String) authResponse.get("role"); // role 가져오기
+
+        if (!"USER".equals(role) && !"ADMIN".equals(role)) { // 허용된 역할만 접근 가능
+            throw new CustomException(
+                HttpStatus.UNAUTHORIZED,
+                40181,
+                "접근 권한이 없습니다.",
+                "유효한 역할이 필요합니다.",
+                "FORBIDDEN_ACCESS_TOKEN"
+            );
+        }
+    }
 }

@@ -7,6 +7,7 @@ import com.example.keupanguser.request.UserRequest;
 import com.example.keupanguser.response.LoginResponse;
 import com.example.keupanguser.service.EmailService;
 import com.example.keupanguser.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -60,8 +61,16 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
     }
 
+    @SecurityRequirement(name = "Authorization") //swagger Jwt 헤더 필요 표시
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserById(@PathVariable Long userId) {
+    public ResponseEntity<?> getUserById(
+        @PathVariable Long userId,
+        @RequestHeader("Authorization") String token) {
+        if(token == null){
+            throw new CustomException(HttpStatus.UNAUTHORIZED, 40182, "jwt 토큰이 없습니다.",
+                "로그인 후 접근해주세요.", "EMPTY_ACCESS_TOKEN");
+        }
+        userService.validateToken(token);
         User user = userService.getUserById(userId);
         if (user == null) {
             throw new CustomException(HttpStatus.NOT_FOUND, 40400, "사용자를 찾을 수 없습니다.",
@@ -194,7 +203,7 @@ public class UserController {
             Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("status", 200);
             responseBody.put("code", 20000);
-            responseBody.put("message","SUCCESS_EMAIL_VERIFICATION");
+            responseBody.put("message", "SUCCESS_EMAIL_VERIFICATION");
             responseBody.put("content", content);
             responseBody.put("data", data); // "data" 필드 추가
 
