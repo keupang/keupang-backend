@@ -21,8 +21,8 @@ public class JwtTokenProvider {
     @PostConstruct
     public void initKeyPair(){
         try {
-            String privateKeyPem = System.getenv("JWT_PRIVATE_KEY");
-            String publicKeyPem = System.getenv("JWT_PUBLIC_KEY");
+            String privateKeyPem = System.getenv("jwt_private_key");
+            String publicKeyPem = System.getenv("jwt_public_key");
 
             PrivateKey privateKey = PemUtils.loadPrivateKey(privateKeyPem, "EC");
             PublicKey publicKey = PemUtils.loadPublicKey(publicKeyPem, "EC");
