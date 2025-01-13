@@ -125,6 +125,10 @@ public class UserService {
         return userRepository.findById(userId).orElse(null);
     }
 
+    public User findByUserEmail(String email){
+        return userRepository.findByUserEmail(email).orElse(null);
+    }
+
     //jwt 검증 (모든 서비스에서 필요할 예정)
     public void validateToken(String token) {
         Map<String, Object> authResponse = authClient.validateToken(token);
@@ -140,4 +144,5 @@ public class UserService {
             );
         }
     }
+
 }

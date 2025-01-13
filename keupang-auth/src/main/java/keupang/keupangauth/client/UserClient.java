@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "user-service", url = "https://api.keupang.store/api/user")
 public interface UserClient {
 
-    @GetMapping("/{email}")
+    @GetMapping("/jwt/{email}")
     Optional<User> findByUserEmail(@PathVariable String email);
 }

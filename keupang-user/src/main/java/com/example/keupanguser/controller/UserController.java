@@ -71,6 +71,10 @@ public class UserController {
                 "로그인 후 접근해주세요.", "EMPTY_ACCESS_TOKEN");
         }
         userService.validateToken(token);
+
+        // userId가 잘 전달되는지 확인
+        log.info("Validated token for userId: {}", userId);
+
         User user = userService.getUserById(userId);
         if (user == null) {
             throw new CustomException(HttpStatus.NOT_FOUND, 40400, "사용자를 찾을 수 없습니다.",
@@ -217,5 +221,20 @@ public class UserController {
                 "INVALID_VERIFY_TOKEN"
             );
         }
+    }
+
+    @GetMapping("/jwt/{email}")
+    public ResponseEntity<User> findByUserEmail(@PathVariable String email){
+        User user = userService.findByUserEmail(email);
+        if (user == null){
+            throw new CustomException(
+                HttpStatus.UNAUTHORIZED,
+                40101,
+                "토큰에 해당하는 유저가 없습니다.",
+                "로그인을 다시 시도해주세요",
+                "INVALID_VERIFY_TOKEN"
+            );
+        }
+        return ResponseEntity.ok(user);
     }
 }
