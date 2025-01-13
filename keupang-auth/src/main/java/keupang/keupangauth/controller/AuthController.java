@@ -1,5 +1,6 @@
 package keupang.keupangauth.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import java.time.Duration;
 import java.util.Map;
 import keupang.keupangauth.exception.CustomException;
@@ -25,6 +26,7 @@ public class AuthController {
 
     private static final long JWT_EXPIRE_TIME = 2; // JWT 만료 시간
 
+    @Hidden
     @PostMapping("/token")
     public ResponseEntity<Map<String, String>> generateToken(
         @RequestParam("email") String email,
@@ -42,6 +44,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("token", token));
     }
 
+    @Hidden
     @PostMapping("/validate")
     public ResponseEntity<Map<String, Object>> validateToken(@RequestHeader("Authorization") String token) {
         if (token == null || !token.startsWith("Bearer ")) {
@@ -73,6 +76,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("email", email, "role", role));
     }
 
+    @Hidden
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
         if (token == null || !token.startsWith("Bearer ")) {

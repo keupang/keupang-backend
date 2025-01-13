@@ -7,6 +7,7 @@ import com.example.keupanguser.request.UserRequest;
 import com.example.keupanguser.response.LoginResponse;
 import com.example.keupanguser.service.EmailService;
 import com.example.keupanguser.service.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.HashMap;
 import java.util.Map;
@@ -223,6 +224,7 @@ public class UserController {
         }
     }
 
+    @Hidden
     @GetMapping("/jwt/{email}")
     public ResponseEntity<User> findByUserEmail(@PathVariable String email){
         User user = userService.findByUserEmail(email);
