@@ -4,4 +4,5 @@ include 'keupang-user'
 include 'keupang-product'
 include 'keupang-eureka-server'
 include 'keupang-gateway'
+include 'keupang-auth'
 

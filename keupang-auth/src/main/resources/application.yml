@@ -1,0 +1,35 @@
+spring:
+    autoconfigure:
+        exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+    application:
+        name: auth
+    profiles:
+        active: dev
+    config:
+        import: configserver:http://${security_username}:${security_password}@config-server:9000
+    data:
+        redis:
+            host: service-redis
+            port: 6379
+
+
+springdoc:
+    api-docs:
+        path: /auth/v3/api-docs
+    swagger-ui:
+        path: /auth/swagger-ui.html
+
+openapi:
+    service:
+        # API Gateway 포트
+        url: https://api.keupang.store
+
+eureka:
+    client:
+        fetch-registry: true
+        register-with-eureka: true
+        service-url:
+            defaultZone: http://${security_username}:${security_password}@eureka-server:8761/eureka
+    instance:
+        instance-id: auth-service-${spring.application.instance-id:${random.value}}
+        prefer-ip-address: true
