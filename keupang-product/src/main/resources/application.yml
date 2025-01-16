@@ -6,6 +6,12 @@ spring:
     config:
         import: configserver:http://${security_username}:${security_password}@config-server:9000
 
+springdoc:
+    api-docs:
+        path: /product/v3/api-docs
+    swagger-ui:
+        path: /product/swagger-ui.html
+
 eureka:
     client:
         fetch-registry: true
