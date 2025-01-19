@@ -3,9 +3,11 @@ package com.example.keupanguser;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableDiscoveryClient
+@EnableFeignClients
 public class KeupangUserApplication {
 
     public static void main(String[] args) {
@@ -18,7 +20,6 @@ public class KeupangUserApplication {
         System.setProperty("USER_DB_NAME", System.getenv("USER_DB_NAME"));
         System.setProperty("google_username", System.getenv("google_username"));
         System.setProperty("google_password", System.getenv("google_password"));
-
 
         SpringApplication.run(KeupangUserApplication.class, args);
     }

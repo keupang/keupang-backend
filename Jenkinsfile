@@ -22,11 +22,7 @@ pipeline {
                 echo 'Building all projects...'
                 sh '''
                 # 각 프로젝트를 Gradle로 빌드
-                ./gradlew clean build -p keupang-config-server
-                ./gradlew clean build -p keupang-eureka-server
-                ./gradlew clean build -p keupang-gateway
-                ./gradlew clean build -p keupang-product
-                ./gradlew clean build -p keupang-user
+                ./gradlew clean build
                 '''
             }
         }
@@ -45,6 +41,7 @@ pipeline {
                     docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-api-gateway:1.0 ./keupang-gateway --push
                     docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-service-product:1.0 ./keupang-product --push
                     docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-service-user:1.0 ./keupang-user --push
+                    docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-service-auth:1.0 ./keupang-auth --push
                     '''
                 }
             }

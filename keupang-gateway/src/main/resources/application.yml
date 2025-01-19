@@ -7,7 +7,10 @@ spring:
             globalcors:
                 cors-configurations:
                     '[/**]':
-                        allowedOrigins: "*"
+                        allowedOrigins:
+                            - "http://localhost:5173"
+                            - "https://www.keupang.store"
+                            - "https://api.keupang.store"
                         allowedMethods:
                             - GET
                             - POST
@@ -16,28 +19,34 @@ spring:
                             - OPTIONS
                         allowedHeaders:
                             - "*"
+                        allowCredentials: true
 
             routes:
-                - id: user
-                  uri:
-                    lb://user
-                  predicates:
-                    - Path=/api/user/**
-                - id: auth
-                  uri:
-                    lb://user
-                  predicates:
-                    - Path=/api/auth/**
+                -   id: user
+                    uri:
+                        lb://user
+                    predicates:
+                        - Path=/api/user/**
+                -   id: auth
+                    uri:
+                        lb://auth
+                    predicates:
+                        - Path=/api/auth/**
                 -   id: user-swagger
                     uri:
                         lb://user
                     predicates:
                         - Path=/user/**
-                - id: product
-                  uri:
-                    lb://product
-                  predicates:
-                    - Path=/api/product/**
+                -   id: auth-swagger
+                    uri:
+                        lb://auth
+                    predicates:
+                        - Path=/auth/**
+                -   id: product
+                    uri:
+                        lb://product
+                    predicates:
+                        - Path=/api/product/**
             discovery:
                 locator:
                     enabled: true
@@ -56,8 +65,13 @@ springdoc:
     swagger-ui:
         path: /swagger-ui.html
         urls:
-            - url: /user/v3/api-docs
-              name: user
+            -   url: /user/v3/api-docs
+                name: user
+            -   url: /auth/v3/api-docs
+                name: auth
         enabled: true
     api-docs:
         enabled: true
+logging:
+    level:
+        org.springframework: DEBUG

@@ -1,13 +1,16 @@
 package com.example.keupanguser.service;
 
+import com.example.keupanguser.client.AuthClient;
+import com.example.keupanguser.domain.Role;
 import com.example.keupanguser.domain.User;
 import com.example.keupanguser.exception.CustomException;
-import com.example.keupanguser.jwt.JwtTokenProvider;
 import com.example.keupanguser.repository.UserRepository;
 import com.example.keupanguser.request.LoginRequest;
 import com.example.keupanguser.request.UserRequest;
 import com.example.keupanguser.response.LoginResponse;
+import feign.FeignException;
 import java.time.Duration;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,11 +25,9 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, Object> redisTemplate;
-    private static final long JWT_EXPIRE_TIME = 2; // JWT 만료 시간
+    private final AuthClient authClient;
     private static final long EMAIL_CODE_EXPIRE_TIME = 5; // EMAIL_CODE 만료 시간
-
 
     public User registerUser(UserRequest user) {
         log.debug("userPassword: {}", user.getUserPassword());
@@ -40,8 +41,11 @@ public class UserService {
             );
         }
 
-        User newUser = User.builder().userName(user.getUserName()).userEmail(user.getUserEmail())
-            .role(user.getRole()).userPhone(user.getUserPhone())
+        User newUser = User.builder()
+            .userName(user.getUserName())
+            .userEmail(user.getUserEmail())
+            .role(Role.USER)
+            .userPhone(user.getUserPhone())
             .userPassword(passwordEncoder.encode(user.getUserPassword())).build();
         return userRepository.save(newUser);
     }
@@ -67,26 +71,33 @@ public class UserService {
                 "INVALID_EMAIL_OR_PASSWORD"
             );
         }
+        // Auth Service 로 JWT 요청
+        try {
+            Map<String, String> tokenResponse = authClient.generateToken(
+                user.getUserEmail(),
+                user.getRole().name()
+            );
 
-        String token = jwtTokenProvider.createToken(loginRequest.userEmail(),
-            String.valueOf(user.getRole()));
+            String token = tokenResponse.get("token");
+            log.info("JWT 생성 완료: {}", token);
 
-        // redis 에 토큰 저장
-        String redisKey = "user:token:" + user.getUserEmail();
-        redisTemplate.opsForValue()
-            .set(redisKey, token, Duration.ofHours(JWT_EXPIRE_TIME)); //JWT 만료
-
-        log.info("redis 저장 : {} = {}", redisKey, token);
-
-        return new LoginResponse(user.getUserName(), token);
+            return new LoginResponse(user.getUserName(), token);
+        } catch (FeignException ex) {
+            throw new CustomException(HttpStatus.SERVICE_UNAVAILABLE, 50301,
+                "현재 인증 서비스를 이용할 수 없습니다.", "담당자에게 문의 후 서비스 다시 시도해주시기 바랍니다.", "SERVICE_UNAVAILABLE");
+        }
     }
 
     public String logout(String token) {
-        String redisKey = "user:token:" + token;
-        redisTemplate.delete(redisKey);
-        log.info("redis 삭제: {}", redisKey);
-
-        return jwtTokenProvider.getEmail(token);
+        // Auth Service 에 로그아웃 요청
+        try {
+            String email = authClient.logout("Bearer " + token);
+            log.info("JWT 로그아웃 완료: {}", token);
+            return email;
+        } catch (Exception e) {
+            throw new CustomException(HttpStatus.SERVICE_UNAVAILABLE, 50301,
+                "현재 인증 서비스를 이용할 수 없습니다.", "담당자에게 문의 후 서비스 다시 시도해주시기 바랍니다.", "SERVICE_UNAVAILABLE");
+        }
     }
 
     public String generateVerificationCode(String email) {
@@ -113,4 +124,25 @@ public class UserService {
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElse(null);
     }
+
+    public User findByUserEmail(String email){
+        return userRepository.findByUserEmail(email).orElse(null);
+    }
+
+    //jwt 검증 (모든 서비스에서 필요할 예정)
+    public void validateToken(String token) {
+        Map<String, Object> authResponse = authClient.validateToken(token);
+        String role = (String) authResponse.get("role"); // role 가져오기
+
+        if (!"USER".equals(role) && !"ADMIN".equals(role)) { // 허용된 역할만 접근 가능
+            throw new CustomException(
+                HttpStatus.UNAUTHORIZED,
+                40181,
+                "접근 권한이 없습니다.",
+                "유효한 역할이 필요합니다.",
+                "FORBIDDEN_ACCESS_TOKEN"
+            );
+        }
+    }
+
 }
