@@ -1,6 +1,6 @@
 package com.example.keupangproduct.exception;
 
-import com.example.keupanguser.response.ErrorResponse;
+import com.example.keupangproduct.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
