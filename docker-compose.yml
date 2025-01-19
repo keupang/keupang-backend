@@ -80,14 +80,17 @@ services:
         image: playdodo/keupang-service-product:1.0
         container_name: keupang-service-product
         platform: linux/arm64
-        ports:
-            - "8082:8082"
         depends_on:
             - eureka-server
             - config-server
         environment:
             - security_username=${security_username}
             - security_password=${security_password}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+            - DB_USERNAME=${DB_USERNAME}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - PRODUCT_DB_NAME=${PRODUCT_DB_NAME}
         networks:
             - msa-network
 
