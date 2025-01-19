@@ -2,6 +2,7 @@ package com.example.keupangproduct.service;
 
 import com.example.keupangproduct.domain.Product;
 import com.example.keupangproduct.repository.ProductRepository;
+import com.example.keupangproduct.request.ProductRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,4 +19,14 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page, size);
         return productRepository.findByNameContainingIgnoreCase(search, pageable);
     }
+
+    public Product saveProduct(ProductRequest product) {
+        Product newProduct = Product.builder()
+            .price(product.price())
+            .name(product.name())
+            .category(product.category())
+            .build();
+        return productRepository.save(newProduct);
+    }
+
 }
