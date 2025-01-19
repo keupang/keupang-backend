@@ -6,7 +6,7 @@ spring:
     config:
         import: configserver:http://${security_username}:${security_password}@config-server:9000
     datasource:
-        url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${USER_DB_NAME}
+        url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${PRODUCT_DB_NAME}
         username: ${DB_USERNAME}
         password: ${DB_PASSWORD}
         driver-class-name: com.mysql.jdbc.Driver
