@@ -25,6 +25,7 @@ public class ProductService {
             .price(product.price())
             .name(product.name())
             .category(product.category())
+            .image(product.image())
             .build();
         return productRepository.save(newProduct);
     }

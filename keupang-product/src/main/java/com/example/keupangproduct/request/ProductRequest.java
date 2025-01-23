@@ -9,5 +9,5 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 public record ProductRequest (
-    Long Id, String name, Integer price, Category category
+    String name, Integer price, Category category, String image
 ){}

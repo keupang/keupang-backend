@@ -21,11 +21,13 @@ public class Product {
     private String name;
     private Integer price;
     private Category category;
+    private String image;
 
     @Builder
-    public Product(String name, Integer price, Category category){
+    public Product(String name, Integer price, Category category, String image){
         this.name = name;
         this.price = price;
         this.category = category;
+        this.image = image;
     }
 }
