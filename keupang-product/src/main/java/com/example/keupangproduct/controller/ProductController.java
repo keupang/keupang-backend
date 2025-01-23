@@ -1,5 +1,6 @@
 package com.example.keupangproduct.controller;
 
+import com.example.keupangproduct.domain.Category;
 import com.example.keupangproduct.domain.Product;
 import com.example.keupangproduct.exception.CustomException;
 import com.example.keupangproduct.request.ProductRequest;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @Slf4j
@@ -71,9 +73,14 @@ public class ProductController {
 
     @PostMapping
     @Operation(summary = "상품 등록")
-    public ResponseEntity<?> registerProduct(@ModelAttribute ProductRequest product){
+    public ResponseEntity<?> registerProduct(
+        @RequestParam String name,
+        @RequestParam Integer price,
+        @RequestParam Category category,
+        @RequestParam MultipartFile image
+    ){
         try {
-            Product savedProduct = productService.saveProduct(product);
+            Product savedProduct = productService.saveProduct(name, price, category, image);
 
             Map<String, Object> content = new HashMap<>();
             content.put("detail", "상품 등록에 성공했습니다.");

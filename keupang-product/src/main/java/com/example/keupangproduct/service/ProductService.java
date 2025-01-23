@@ -33,17 +33,17 @@ public class ProductService {
         return productRepository.findByNameContainingIgnoreCase(search, pageable);
     }
 
-    public Product saveProduct(ProductRequest productRequest)
+    public Product saveProduct(String name, Integer price, Category category, MultipartFile image)
         throws IOException, IOException {
-        String imageName = UUID.randomUUID() + "_" + productRequest.imageUrl().getOriginalFilename();
-        amazonS3.putObject(new PutObjectRequest(bucketName, imageName, productRequest.imageUrl().getInputStream(), null)
+        String imageName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+        amazonS3.putObject(new PutObjectRequest(bucketName, imageName, image.getInputStream(), null)
             .withCannedAcl(CannedAccessControlList.PublicRead));
         String imageUrl = amazonS3.getUrl(bucketName, imageName).toString();
 
         Product product = Product.builder()
-            .name(productRequest.name())
-            .price(productRequest.price())
-            .category(productRequest.category())
+            .name(name)
+            .price(price)
+            .category(category)
             .imageUrl(imageUrl)
             .build();
 
