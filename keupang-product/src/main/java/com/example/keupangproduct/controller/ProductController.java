@@ -6,6 +6,7 @@ import com.example.keupangproduct.exception.CustomException;
 import com.example.keupangproduct.request.ProductRequest;
 import com.example.keupangproduct.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +83,6 @@ public class ProductController {
     ){
         try {
             Product savedProduct = productService.saveProduct(name, price, category, image);
-
             Map<String, Object> content = new HashMap<>();
             content.put("detail", "상품 등록에 성공했습니다.");
 
