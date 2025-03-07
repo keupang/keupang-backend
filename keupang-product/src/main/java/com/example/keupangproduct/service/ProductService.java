@@ -6,7 +6,6 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.keupangproduct.domain.Category;
 import com.example.keupangproduct.domain.Product;
 import com.example.keupangproduct.repository.ProductRepository;
-import com.example.keupangproduct.request.ProductRequest;
 import java.io.IOException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +32,8 @@ public class ProductService {
         return productRepository.findByNameContainingIgnoreCase(search, pageable);
     }
 
-    public Product saveProduct(String name, Integer price, Category category, MultipartFile image)
-        throws IOException, IOException {
+    public Product createProduct(String name, Category category, MultipartFile image)
+        throws IOException {
         String imageName = UUID.randomUUID() + "_" + image.getOriginalFilename();
         amazonS3.putObject(new PutObjectRequest(bucketName, imageName, image.getInputStream(), null)
             .withCannedAcl(CannedAccessControlList.PublicRead));
@@ -42,7 +41,6 @@ public class ProductService {
 
         Product product = Product.builder()
             .name(name)
-            .price(price)
             .category(category)
             .imageUrl(imageUrl)
             .build();
