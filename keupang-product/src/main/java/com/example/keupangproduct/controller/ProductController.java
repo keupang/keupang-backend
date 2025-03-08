@@ -3,10 +3,9 @@ package com.example.keupangproduct.controller;
 import com.example.keupangproduct.domain.Category;
 import com.example.keupangproduct.domain.Product;
 import com.example.keupangproduct.exception.CustomException;
-import com.example.keupangproduct.request.ProductRequest;
 import com.example.keupangproduct.service.ProductService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -73,16 +71,16 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @Hidden
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "상품 등록")
     public ResponseEntity<?> registerProduct(
         @RequestParam String name,
-        @RequestParam Integer price,
         @RequestParam Category category,
-        @RequestParam MultipartFile image
+        @RequestPart MultipartFile image
     ){
         try {
-            Product savedProduct = productService.saveProduct(name, price, category, image);
+            Product savedProduct = productService.createProduct(name, category, image);
             Map<String, Object> content = new HashMap<>();
             content.put("detail", "상품 등록에 성공했습니다.");
 

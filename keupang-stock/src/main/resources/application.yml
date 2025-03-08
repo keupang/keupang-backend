@@ -1,0 +1,39 @@
+spring:
+    application:
+        name: stock
+    profiles:
+        active: dev
+    config:
+        import: configserver:http://${security_username}:${security_password}@config-server:9000
+    datasource:
+        url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${STOCK_DB_NAME}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+        driver-class-name: com.mysql.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+        database-platform: org.hibernate.dialect.MySQLDialect
+        open-in-view: false
+
+springdoc:
+    api-docs:
+        path: /stock/v3/api-docs
+    swagger-ui:
+        path: /stock/swagger-ui.html
+
+openapi:
+    service:
+        # API Gateway 포트
+        url: https://api.keupang.store
+
+eureka:
+    client:
+        fetch-registry: true
+        register-with-eureka: true
+        service-url:
+            defaultZone: http://${security_username}:${security_password}@eureka-server:8761/eureka
+    instance:
+        instance-id: stock-service-${spring.application.instance-id:${random.value}}
+        prefer-ip-address: true
