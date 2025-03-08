@@ -52,6 +52,16 @@ spring:
                         lb://product
                     predicates:
                         - Path=/product/**
+                -   id: stock
+                    uri:
+                      lb://stock
+                    predicates:
+                      - Path=/api/stock/**
+                -   id: stock-swagger
+                    uri:
+                      lb://stock
+                    predicates:
+                      - Path=/stock/**
             discovery:
                 locator:
                     enabled: true
@@ -76,9 +86,11 @@ springdoc:
                 name: auth
             -   url: /product/v3/api-docs
                 name: product
+            -   url: /stock/v3/api-docs
+                name: stock
         enabled: true
     api-docs:
         enabled: true
 logging:
     level:
-        org.springframework: DEBUG
+        org.springframework: info
