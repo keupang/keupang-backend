@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,6 +19,13 @@ public class Product {
     private Long Id;
 
     private String name;
-    private Integer price;
     private Category category;
+    private String imageUrl;
+
+    @Builder
+    public Product(String name, Category category, String imageUrl) {
+        this.name = name;
+        this.category = category;
+        this.imageUrl = imageUrl;
+    }
 }

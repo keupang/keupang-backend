@@ -55,6 +55,12 @@ dependencies {
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.780'
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+    //feign client
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    //product service
+    implementation project(':keupang-product')
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

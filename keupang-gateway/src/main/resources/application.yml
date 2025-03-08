@@ -47,6 +47,11 @@ spring:
                         lb://product
                     predicates:
                         - Path=/api/product/**
+                -   id: product-swagger
+                    uri:
+                        lb://product
+                    predicates:
+                        - Path=/product/**
             discovery:
                 locator:
                     enabled: true
@@ -69,6 +74,8 @@ springdoc:
                 name: user
             -   url: /auth/v3/api-docs
                 name: auth
+            -   url: /product/v3/api-docs
+                name: product
         enabled: true
     api-docs:
         enabled: true

@@ -1,12 +1,12 @@
 spring:
     application:
-        name: product
+        name: stock
     profiles:
         active: dev
     config:
         import: configserver:http://${security_username}:${security_password}@config-server:9000
     datasource:
-        url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${PRODUCT_DB_NAME}
+        url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${STOCK_DB_NAME}
         username: ${DB_USERNAME}
         password: ${DB_PASSWORD}
         driver-class-name: com.mysql.jdbc.Driver
@@ -19,9 +19,9 @@ spring:
 
 springdoc:
     api-docs:
-        path: /product/v3/api-docs
+        path: /stock/v3/api-docs
     swagger-ui:
-        path: /product/swagger-ui.html
+        path: /stock/swagger-ui.html
 
 openapi:
     service:
@@ -35,5 +35,5 @@ eureka:
         service-url:
             defaultZone: http://${security_username}:${security_password}@eureka-server:8761/eureka
     instance:
-        instance-id: product-service-${spring.application.instance-id:${random.value}}
+        instance-id: stock-service-${spring.application.instance-id:${random.value}}
         prefer-ip-address: true

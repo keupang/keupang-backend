@@ -83,8 +83,12 @@ public class UserService {
 
             return new LoginResponse(user.getUserName(), token);
         } catch (FeignException ex) {
-            throw new CustomException(HttpStatus.SERVICE_UNAVAILABLE, 50301,
-                "현재 인증 서비스를 이용할 수 없습니다.", "담당자에게 문의 후 서비스 다시 시도해주시기 바랍니다.", "SERVICE_UNAVAILABLE");
+            throw new CustomException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                50301,
+                "현재 인증 서비스를 이용할 수 없습니다.",
+                "담당자에게 문의 후 서비스 다시 시도해주시기 바랍니다.",
+                "SERVICE_UNAVAILABLE");
         }
     }
 
