@@ -4,6 +4,7 @@ import com.example.keupangproduct.domain.Category;
 import com.example.keupangproduct.domain.Product;
 import com.example.keupangproduct.exception.CustomException;
 import com.example.keupangproduct.service.ProductService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +71,7 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @Hidden
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "상품 등록")
     public ResponseEntity<?> registerProduct(
