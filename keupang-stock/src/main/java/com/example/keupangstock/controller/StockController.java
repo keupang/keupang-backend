@@ -7,6 +7,7 @@ import com.example.keupangstock.domain.Stock;
 import com.example.keupangstock.service.StockService;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class StockController {
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> registerStock(
-        @RequestParam Long productId,
+        @RequestParam Optional<Long> productId,
         @RequestParam Integer price,
         @RequestParam String name,
         @RequestParam Category category,
@@ -38,12 +39,12 @@ public class StockController {
 
         try {
             //첫 상품이면 상품 등록
-            if (productId == null){
-                productId = stockService.createProduct(image, name, category);
-            }
-
+            log.info("productId = {}", productId);
+            Long finalProductId = productId.orElseGet(() -> stockService.createProduct(image, name, category));
+            log.info("finalProductId = {}", finalProductId);
             //재고 등록
-            Stock stock = stockService.createStoke(productId, price, detailImage, quantity);
+            Stock stock = stockService.createStoke(finalProductId, price, detailImage, quantity);
+
             Map<String, Object> content = new HashMap<>();
 
             content.put("detail", "재고 등록에 성공했습니다.");
@@ -59,7 +60,7 @@ public class StockController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception ex) {
-            log.error("재고 등록 중 오류 발: {}", ex.getMessage());
+            log.error("재고 등록 중 오류 발생: {}", ex.getMessage());
             throw new CustomException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 50002,
