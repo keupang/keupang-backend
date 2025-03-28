@@ -52,8 +52,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     //aws-s3
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.780'
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation(platform("software.amazon.awssdk:bom:2.31.6"))
+    implementation 'software.amazon.awssdk:s3'
 
     //feign client
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
