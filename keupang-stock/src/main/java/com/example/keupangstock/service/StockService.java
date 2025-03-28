@@ -1,10 +1,6 @@
 package com.example.keupangstock.service;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.keupangproduct.domain.Category;
-import com.example.keupangproduct.domain.Product;
 import com.example.keupangproduct.exception.CustomException;
 import com.example.keupangstock.client.ProductClient;
 import com.example.keupangstock.domain.SaleState;
@@ -20,6 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -27,9 +27,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class StockService {
     private final StockRepository stockRepository;
     private final ProductClient productClient;
-    private final AmazonS3 amazonS3;
+    private final S3Client s3Client;
     @Value("${aws.s3.bucket}")
     private String bucketName;
+    @Value("${aws.s3.region}")
+    private String region;
 
     public Long createProduct(MultipartFile image, String name, Category category){
 
@@ -76,11 +78,22 @@ public class StockService {
 
     public Stock createStoke(Long productId, Integer price, MultipartFile detailImage, Integer quantity)
         throws IOException {
-        String imageName = UUID.randomUUID() + "_" + detailImage.getOriginalFilename();
-        amazonS3.putObject(new PutObjectRequest(bucketName, imageName, detailImage.getInputStream(), null)
-            .withCannedAcl(CannedAccessControlList.PublicRead));
-        String imageUrl = amazonS3.getUrl(bucketName, imageName).toString();
-        log.info("imageUrl = {}", imageUrl);
+        String imageName = UUID.randomUUID().toString();
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                    .key(imageName)
+                        .acl(ObjectCannedACL.PUBLIC_READ)
+                            .contentType(detailImage.getContentType())
+                                .build();
+
+        s3Client.putObject(
+            putObjectRequest,
+            RequestBody.fromInputStream(detailImage.getInputStream(), detailImage.getSize())
+        );
+        String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
+            bucketName, region, imageName);
+
         Stock stock = Stock.builder()
             .productId(productId)
             .saleState(SaleState.ON_SALE)
