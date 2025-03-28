@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @FeignClient(name = "product-service", url = "https://api.keupang.store/api/product")
 public interface ProductClient {
-    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<Map<String, Object>> registerProduct(
         @RequestParam("name") String name,
         @RequestParam("category") Category category,
