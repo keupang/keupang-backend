@@ -1,17 +1,28 @@
 package com.example.keupangstock.service;
 
 import com.example.keupangproduct.domain.Category;
+import com.example.keupangproduct.domain.Product;
 import com.example.keupangproduct.exception.CustomException;
 import com.example.keupangstock.client.ProductClient;
 import com.example.keupangstock.domain.SaleState;
 import com.example.keupangstock.domain.Stock;
 import com.example.keupangstock.repository.StockRepository;
+import com.example.keupangstock.response.StockWithProductResponse;
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -102,5 +113,54 @@ public class StockService {
             .detailImage(imageUrl)
             .build();
         return stockRepository.save(stock);
+    }
+
+    public Page<StockWithProductResponse> getStocksWithProductInfo(
+        String search,
+        Category category,
+        Integer minPrice,
+        Integer maxPrice,
+        String sortBy,
+        int page, int size
+    ){
+        List<Product> products = productClient.getProductBySearch(search, category);
+        products.forEach(p -> log.warn("Fetched product: id={}, name={}", p.getId(), p.getName()));
+
+        List<Long> productIds = products.stream().map(Product::getId).toList();
+
+        if(productIds.isEmpty()){
+            return Page.empty(); //검색 결과 없음
+        }
+        Pageable pageable = PageRequest.of(page, size, getSort(sortBy));
+
+        Page<Stock> stockPage = stockRepository.findByProductIdInAndPriceBetween(
+            productIds,
+            minPrice != null ? minPrice : 0,
+            maxPrice != null ? maxPrice : Integer.MAX_VALUE,
+            pageable
+        );
+
+        Map<Long, Product> productMap = products.stream()
+            .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        List<StockWithProductResponse> content = stockPage.getContent().stream()
+            .map(stock -> new StockWithProductResponse(stock, productMap.get(stock.getProductId())))
+            .sorted((a, b) -> {
+                if (sortBy.equals("name")) {
+                    return a.product().getName().compareToIgnoreCase(b.product().getName());
+                }
+                return 0;
+            })
+            .toList();
+
+        return new PageImpl<>(content, pageable, stockPage.getTotalElements());
+    }
+
+    private Sort getSort(String sortBy) {
+        return switch (sortBy) {
+            case "priceAsc" -> Sort.by("price").ascending();
+            case "priceDesc" -> Sort.by("price").descending();
+            default -> Sort.unsorted();
+        };
     }
 }
