@@ -56,6 +56,9 @@ dependencies {
     implementation platform("software.amazon.awssdk:bom:2.31.6")
     implementation 'software.amazon.awssdk:s3'
 
+    //feign client
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
