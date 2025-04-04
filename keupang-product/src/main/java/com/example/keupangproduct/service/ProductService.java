@@ -3,8 +3,11 @@ package com.example.keupangproduct.service;
 import com.example.keupangproduct.domain.Category;
 import com.example.keupangproduct.domain.Product;
 import com.example.keupangproduct.repository.ProductRepository;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,11 +33,6 @@ public class ProductService {
     @Value("${aws.s3.region}")
     private String region;
 
-    public Page<Product> getProducts(String search, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return productRepository.findByNameContainingIgnoreCase(search, pageable);
-    }
-
     public Product createProduct(String name, Category category, MultipartFile image)
         throws IOException {
         String imageName = UUID.randomUUID().toString();
@@ -59,12 +57,28 @@ public class ProductService {
             .imageUrl(imageUrl)
             .build();
 
-//        s3Client.putObject(new PutObjectRequest(bucketName, imageName, image.getInputStream(), null)
-//            .withCannedAcl(CannedAccessControlList.PublicRead));
-//        String imageUrl = s3Client.getUrl(bucketName, imageName).toString();
-//
-
         return productRepository.save(product);
     }
 
+
+
+    public List<Product> searchProducts(String search, Category category) {
+        if ((search == null || search.isBlank()) && category == null) {
+            return productRepository.findAll(); // 전체 조회
+        }
+
+        if (search != null && !search.isBlank() && category != null) {
+            return productRepository.findByNameContainingIgnoreCaseAndCategory(search, category);
+        }
+
+        if (search != null && !search.isBlank()) {
+            return productRepository.findByNameContainingIgnoreCase(search);
+        }
+
+        return productRepository.findByCategory(category);
+    }
+
+    public List<Product> getProductsByIds(List<Long> ids) {
+        return productRepository.findAllById(ids);
+    }
 }
