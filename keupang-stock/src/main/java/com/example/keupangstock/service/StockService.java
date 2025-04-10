@@ -6,9 +6,12 @@ import com.example.keupangproduct.exception.CustomException;
 import com.example.keupangstock.client.ProductClient;
 import com.example.keupangstock.domain.SaleState;
 import com.example.keupangstock.domain.Stock;
+import com.example.keupangstock.domain.StockDetailImage;
 import com.example.keupangstock.repository.StockRepository;
+import com.example.keupangstock.response.StockDetailResponse;
 import com.example.keupangstock.response.StockWithProductResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -87,31 +90,45 @@ public class StockService {
         }
     }
 
-    public Stock createStoke(Long productId, Integer price, MultipartFile detailImage, Integer quantity)
+    public Stock createStoke(Long productId, Integer price, MultipartFile[] detailImages, Integer quantity)
         throws IOException {
-        String imageName = UUID.randomUUID().toString();
-
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                    .key(imageName)
-                        .acl(ObjectCannedACL.PUBLIC_READ)
-                            .contentType(detailImage.getContentType())
-                                .build();
-
-        s3Client.putObject(
-            putObjectRequest,
-            RequestBody.fromInputStream(detailImage.getInputStream(), detailImage.getSize())
-        );
-        String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
-            bucketName, region, imageName);
-
         Stock stock = Stock.builder()
             .productId(productId)
             .saleState(SaleState.ON_SALE)
             .price(price)
             .quantity(quantity)
-            .detailImage(imageUrl)
+            .detailImages(new ArrayList<>())
             .build();
+
+        List<StockDetailImage> detailImageList = new ArrayList<>();
+
+        for(MultipartFile detailImage : detailImages){
+            String imageName = UUID.randomUUID().toString();
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(imageName)
+                .acl(ObjectCannedACL.PUBLIC_READ)
+                .contentType(detailImage.getContentType())
+                .build();
+
+            s3Client.putObject(
+                putObjectRequest,
+                RequestBody.fromInputStream(detailImage.getInputStream(), detailImage.getSize())
+            );
+
+            String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
+                bucketName, region, imageName);
+
+            StockDetailImage stockDetailImage = StockDetailImage.builder()
+                .imageUrl(imageUrl)
+                .stock(stock)
+                .build();
+
+            detailImageList.add(stockDetailImage);
+        }
+
+        stock.getDetailImages().addAll(detailImageList);
+
         return stockRepository.save(stock);
     }
 
@@ -158,9 +175,29 @@ public class StockService {
 
     private Sort getSort(String sortBy) {
         return switch (sortBy) {
-            case "priceAsc" -> Sort.by("price").ascending();
-            case "priceDesc" -> Sort.by("price").descending();
+            case "priceAsc" -> Sort.by("price").ascending(); //가격 낮은순
+            case "priceDesc" -> Sort.by("price").descending(); //가격 높은순
+            case "new" -> Sort.by("createdAt").descending();  // 최신순
+            case "sales" -> Sort.by("sales").descending();    // 판매량순
             default -> Sort.unsorted();
         };
+    }
+
+    public StockDetailResponse getStockDetail(Long stockId) {
+        Stock stock = stockRepository.findWithDetailImagesById(stockId)
+            .orElseThrow(() -> new CustomException(
+                HttpStatus.NOT_FOUND, 40401, "해당 재고를 찾을 수 없습니다.", "재고 ID를 확인해주세요.", "STOCK_NOT_FOUND"
+            ));
+
+        Product product = productClient.getProductInfoList(List.of(stock.getProductId()))
+            .stream()
+            .findFirst()
+            .orElseThrow(() -> new CustomException(
+                HttpStatus.NOT_FOUND, 40402, "상품 정보를 찾을 수 없습니다.", "상품 ID를 확인해주세요.", "PRODUCT_NOT_FOUND"
+            ));
+
+        List<StockDetailImage> images = stock.getDetailImages(); // 이미 FetchType.LAZY면 자동 조회됨
+
+        return StockDetailResponse.of(stock, product, images);
     }
 }
