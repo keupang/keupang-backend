@@ -4,6 +4,7 @@ import com.example.keupangproduct.domain.Category;
 import com.example.keupangproduct.exception.CustomException;
 import com.example.keupangstock.client.ProductClient;
 import com.example.keupangstock.domain.Stock;
+import com.example.keupangstock.response.StockDetailResponse;
 import com.example.keupangstock.response.StockWithProductResponse;
 import com.example.keupangstock.service.StockService;
 import java.util.HashMap;
@@ -16,9 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,8 +38,8 @@ public class StockController {
         @RequestParam Integer price,
         @RequestParam String name,
         @RequestParam Category category,
-        @RequestParam MultipartFile image,
-        @RequestParam MultipartFile detailImage,
+        @RequestPart MultipartFile image,
+        @RequestPart MultipartFile [] detailImages,
         @RequestParam Integer quantity
     ){
 
@@ -46,7 +49,7 @@ public class StockController {
             Long finalProductId = productId.orElseGet(() -> stockService.createProduct(image, name, category));
             log.info("finalProductId = {}", finalProductId);
             //재고 등록
-            Stock stock = stockService.createStoke(finalProductId, price, detailImage, quantity);
+            Stock stock = stockService.createStoke(finalProductId, price, detailImages, quantity);
 
             Map<String, Object> content = new HashMap<>();
 
@@ -107,6 +110,22 @@ public class StockController {
             "data", data
         );
 
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{stockId}")
+    public ResponseEntity<?> getStockDetail(@PathVariable Long stockId) {
+        StockDetailResponse detail = stockService.getStockDetail(stockId);
+
+        Map<String, Object> content = Map.of("detail", "재고 상세 조회 성공");
+        Map<String, Object> data = Map.of("stock", detail);
+        Map<String, Object> response = Map.of(
+            "status", 200,
+            "code", 20009,
+            "message", "SUCCESS_READ_STOCK_DETAIL",
+            "content", content,
+            "data", data
+        );
         return ResponseEntity.ok(response);
     }
 }
