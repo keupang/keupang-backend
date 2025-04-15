@@ -43,6 +43,7 @@ pipeline {
                     docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-service-user:1.0 ./keupang-user --push
                     docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-service-auth:1.0 ./keupang-auth --push
                     docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-service-stock:1.0 ./keupang-stock --push
+                    docker buildx build --platform linux/amd64,linux/arm64 -t playdodo/keupang-service-review:1.0 ./keupang-review --push
                     '''
                 }
             }
