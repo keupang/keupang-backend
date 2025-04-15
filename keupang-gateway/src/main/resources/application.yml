@@ -63,6 +63,16 @@ spring:
                       lb://stock
                     predicates:
                       - Path=/stock/**
+                -   id: review
+                    uri:
+                        lb://review
+                    predicates:
+                        - Path=/api/review/**
+                -   id: review-swagger
+                    uri:
+                        lb://review
+                    predicates:
+                        - Path=/review/**
             discovery:
                 locator:
                     enabled: true
@@ -89,6 +99,8 @@ springdoc:
                 name: product
             -   url: /stock/v3/api-docs
                 name: stock
+            -   url: /review/v3/api-docs
+                name: review
         enabled: true
     api-docs:
         enabled: true

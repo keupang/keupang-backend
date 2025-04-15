@@ -4,15 +4,17 @@ import com.example.keupangproduct.domain.Category;
 import com.example.keupangproduct.domain.Product;
 import com.example.keupangproduct.exception.CustomException;
 import com.example.keupangstock.client.ProductClient;
+import com.example.keupangstock.client.ReviewClient;
 import com.example.keupangstock.domain.SaleState;
 import com.example.keupangstock.domain.Stock;
 import com.example.keupangstock.domain.StockDetailImage;
 import com.example.keupangstock.repository.StockRepository;
+import com.example.keupangstock.response.ReviewResponse;
 import com.example.keupangstock.response.StockDetailResponse;
 import com.example.keupangstock.response.StockWithProductResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -42,6 +44,8 @@ public class StockService {
     private final StockRepository stockRepository;
     private final ProductClient productClient;
     private final S3Client s3Client;
+    private final ReviewClient reviewClient;
+
     @Value("${aws.s3.bucket}")
     private String bucketName;
     @Value("${aws.s3.region}")
@@ -198,6 +202,13 @@ public class StockService {
 
         List<StockDetailImage> images = stock.getDetailImages(); // 이미 FetchType.LAZY면 자동 조회됨
 
-        return StockDetailResponse.of(stock, product, images);
+        List<ReviewResponse> reviews = Collections.emptyList();
+
+        try {
+            reviews = reviewClient.getReviewsByProductId(product.getId());
+        } catch (Exception e) {
+            log.warn("리뷰 조회 실패: productId={}, error={}", product.getId(), e.getMessage());
+        }
+        return StockDetailResponse.of(stock, product, images, reviews);
     }
 }
