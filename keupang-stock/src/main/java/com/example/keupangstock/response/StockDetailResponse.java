@@ -14,9 +14,10 @@ public record StockDetailResponse(
     Integer price,
     Integer quantity,
     String saleState,
-    List<String> detailImages
+    List<String> detailImages,
+    List<ReviewResponse> reviews
 ) {
-    public static StockDetailResponse of(Stock stock, Product product, List<StockDetailImage> images) {
+    public static StockDetailResponse of(Stock stock, Product product, List<StockDetailImage> images, List<ReviewResponse> reviews) {
         return new StockDetailResponse(
             stock.getId(),
             stock.getProductId(),
@@ -26,7 +27,8 @@ public record StockDetailResponse(
             stock.getPrice(),
             stock.getQuantity(),
             stock.getSaleState().name(),
-            images.stream().map(StockDetailImage::getImageUrl).toList()
+            images.stream().map(StockDetailImage::getImageUrl).toList(),
+            reviews
         );
     }
 }

@@ -239,4 +239,11 @@ public class UserController {
         }
         return ResponseEntity.ok(user);
     }
+
+    @Hidden
+    @GetMapping("/name")
+    public ResponseEntity<String> getName(@RequestParam String email){
+        User user = userService.findByUserEmail(email);
+        return ResponseEntity.ok(user.getUserName());
+    }
 }
