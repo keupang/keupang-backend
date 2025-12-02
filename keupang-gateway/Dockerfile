@@ -1,14 +1,13 @@
-# 1. Base image
-FROM openjdk:17-jdk-slim
-
-# 2. Work directory
+# 1. Build Stage
+FROM eclipse-temurin:17-jdk-jammy AS builder
 WORKDIR /app
+COPY . .
+RUN chmod +x gradlew
+RUN ./gradlew clean build -x test
 
-# 3. Copy JAR file
-COPY build/libs/*.jar app.jar
-
-# 4. Expose port
+# 2. Run Stage
+FROM eclipse-temurin:17-jdk-jammy
+WORKDIR /app
+COPY --from=builder /app/build/libs/*.jar app.jar
 EXPOSE 8080
-
-# 5. Run application
 ENTRYPOINT ["java", "-jar", "app.jar"]
