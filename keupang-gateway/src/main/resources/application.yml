@@ -11,6 +11,7 @@ spring:
                             - "http://localhost:5173"
                             - "https://www.keupang.store"
                             - "https://api.keupang.store"
+                            - "https://keupang-front.vercel.app"
                         allowedMethods:
                             - GET
                             - POST
