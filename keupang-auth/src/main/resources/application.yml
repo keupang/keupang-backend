@@ -3,6 +3,9 @@ spring:
         exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
     application:
         name: auth
+
+server:
+    port: ${PORT:8080}
     profiles:
         active: dev
     config:
