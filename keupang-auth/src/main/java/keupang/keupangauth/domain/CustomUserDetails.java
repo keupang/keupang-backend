@@ -1,6 +1,6 @@
 package keupang.keupangauth.domain;
 
-import com.example.keupanguser.domain.User;
+import keupang.keupangauth.dto.UserDto;
 import java.util.Collection;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
-    private final User user;
+    private final UserDto user;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;

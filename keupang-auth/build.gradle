@@ -58,7 +58,7 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
 	//user service
-	implementation project(':keupang-user')
+	// implementation project(':keupang-user')
 }
 
 dependencyManagement {
