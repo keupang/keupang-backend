@@ -37,9 +37,55 @@ spring:
                     uri:
                         lb://user
                     predicates:
+                        - Path=/user/**
+                -   id: auth-swagger
+                    uri:
+                        lb://auth
+                    predicates:
+                        - Path=/auth/**
+                -   id: product
+                    uri:
+                        lb://product
+                    predicates:
+                        - Path=/api/product/**
+                -   id: stock
+                    uri:
+                        lb://stock
+                    predicates:
+                        - Path=/api/stock/**
+                -   id: review
+                    uri:
+                        lb://review
+                    predicates:
+                        - Path=/api/review/**
+            discovery:
+                locator:
+                    enabled: true
+
+server:
+    port: 8080
+
+eureka:
+    client:
+        register-with-eureka: true
+        fetch-registry: true
+        service-url:
+            defaultZone: https://admin:admin@keupang-eureka.onrender.com/eureka/
+
+springdoc:
+    swagger-ui:
+        path: /swagger-ui.html
+        urls:
+            -   url: /user/v3/api-docs
                 name: user
             -   url: /auth/v3/api-docs
                 name: auth
+            -   url: /product/v3/api-docs
+                name: product
+            -   url: /stock/v3/api-docs
+                name: stock
+            -   url: /review/v3/api-docs
+                name: review
         enabled: true
     api-docs:
         enabled: true
