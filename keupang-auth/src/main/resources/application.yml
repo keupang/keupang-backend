@@ -9,7 +9,7 @@ server:
     profiles:
         active: dev
     config:
-        import: configserver:http://${security_username}:${security_password}@config-server:9000
+        import: configserver:https://keupang-config.onrender.com
     data:
         redis:
             host: service-redis

@@ -24,7 +24,7 @@ spring:
         active: dev
 
     config:
-        import: configserver:http://${security_username}:${security_password}@config-server:9000
+        import: configserver:https://keupang-config.onrender.com
     datasource:
         url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${USER_DB_NAME}
         username: ${DB_USERNAME}
