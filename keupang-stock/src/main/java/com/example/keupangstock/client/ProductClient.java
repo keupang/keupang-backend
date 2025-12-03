@@ -15,28 +15,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-@FeignClient(name = "product-service", url = "https://api.keupang.store/api/product")
+@FeignClient(name = "product-service", url = "https://keupang-gateway.onrender.com/api/product")
 public interface ProductClient {
-    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    ResponseEntity<Product> registerProduct(
-            @RequestParam("name") String name,
-            @RequestParam("price") Integer price,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestParam("category") Category category,
-            @RequestPart("image") MultipartFile image,
-            @RequestParam("keywords") List<String> keywords);
+        @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        ResponseEntity<Product> registerProduct(
+                        @RequestParam("name") String name,
+                        @RequestParam("price") Integer price,
+                        @RequestParam(value = "description", required = false) String description,
+                        @RequestParam("category") Category category,
+                        @RequestPart("image") MultipartFile image,
+                        @RequestParam("keywords") List<String> keywords);
 
-    @PostMapping("/batch")
-    List<Product> getProductInfoList(@RequestBody List<Long> ids);
+        @PostMapping("/batch")
+        List<Product> getProductInfoList(@RequestBody List<Long> ids);
 
-    @PostMapping("/search")
-    List<Product> getProductBySearch(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) Category category);
+        @PostMapping("/search")
+        List<Product> getProductBySearch(
+                        @RequestParam(required = false) String search,
+                        @RequestParam(required = false) Category category);
 
-    @GetMapping
-    Product getProductById(@RequestParam Long productId);
+        @GetMapping
+        Product getProductById(@RequestParam Long productId);
 
-    @PostMapping("/keywords")
-    Map<Long, List<String>> getProductKeywords(@RequestBody List<Long> productIds);
+        @PostMapping("/keywords")
+        Map<Long, List<String>> getProductKeywords(@RequestBody List<Long> productIds);
 }

@@ -58,9 +58,31 @@ spring:
                         lb://review
                     predicates:
                         - Path=/api/review/**
+
+            default-filters:
+                - name: Retry
+                  args:
+                      retries: 20
+                      methods: GET,POST,PUT,DELETE
+                      backoff:
+                          firstBackoff: 3000ms
+                          maxBackoff: 3000ms
+                          factor: 1
+                          basedOnPreviousValue: false
+                      exceptions:
+                          - java.io.IOException
+                          - java.util.concurrent.TimeoutException
+                          - org.springframework.cloud.gateway.support.NotFoundException
+                          - org.springframework.web.server.ResponseStatusException
+                          - java.net.ConnectException
+
             discovery:
                 locator:
                     enabled: true
+
+            httpclient:
+                connect-timeout: 5000
+                response-timeout: 60000
 
 server:
     port: 8080
