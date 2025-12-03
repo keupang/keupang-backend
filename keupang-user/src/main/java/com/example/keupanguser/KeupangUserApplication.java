@@ -11,7 +11,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class KeupangUserApplication {
 
     public static void main(String[] args) {
-
+        SpringApplication.run(KeupangUserApplication.class, args);
     }
 
 }
