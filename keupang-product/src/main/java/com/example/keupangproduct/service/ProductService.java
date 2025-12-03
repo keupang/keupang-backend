@@ -35,7 +35,7 @@ public class ProductService {
     @Value("${aws.s3.region}")
     private String region;
 
-    public Product createProduct(String name, Integer price, Integer stock, String description, Category category,
+    public Product createProduct(String name, Integer price, String description, Category category,
             MultipartFile image, List<String> keywords)
             throws IOException {
         String imageName = UUID.randomUUID().toString();
@@ -56,7 +56,6 @@ public class ProductService {
         Product product = Product.builder()
                 .name(name)
                 .price(price)
-                .stock(stock)
                 .description(description)
                 .category(category)
                 .imageUrl(imageUrl)

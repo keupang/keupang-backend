@@ -53,13 +53,12 @@ public class ProductController {
     public ResponseEntity<Product> registerProduct(
             @RequestParam String name,
             @RequestParam Integer price,
-            @RequestParam Integer stock,
-            @RequestParam String description,
+            @RequestParam(required = false) String description,
             @RequestParam Category category,
             @RequestPart MultipartFile image,
             @RequestParam(required = false) List<String> keywords) {
         try {
-            Product savedProduct = productService.createProduct(name, price, stock, description, category, image,
+            Product savedProduct = productService.createProduct(name, price, description, category, image,
                     keywords);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
         } catch (Exception e) {

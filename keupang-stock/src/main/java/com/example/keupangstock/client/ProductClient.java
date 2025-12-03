@@ -19,22 +19,20 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ProductClient {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<Product> registerProduct(
-        @RequestParam("name") String name,
-        @RequestParam("category") Category category,
-        @RequestPart("image") MultipartFile image,
-        @RequestParam("keywords") List<String> keywords
-    );
-
+            @RequestParam("name") String name,
+            @RequestParam("price") Integer price,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam("category") Category category,
+            @RequestPart("image") MultipartFile image,
+            @RequestParam("keywords") List<String> keywords);
 
     @PostMapping("/batch")
     List<Product> getProductInfoList(@RequestBody List<Long> ids);
 
-
     @PostMapping("/search")
     List<Product> getProductBySearch(
-        @RequestParam(required = false) String search,
-        @RequestParam(required = false) Category category
-    );
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Category category);
 
     @GetMapping
     Product getProductById(@RequestParam Long productId);

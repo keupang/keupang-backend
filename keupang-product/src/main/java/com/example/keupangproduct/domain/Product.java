@@ -24,7 +24,6 @@ public class Product {
 
     private String name;
     private Integer price;
-    private Integer stock;
     private String description;
     private String imageUrl;
     private Category category;
@@ -34,11 +33,10 @@ public class Product {
     private List<ProductKeyword> keywords = new ArrayList<>();
 
     @Builder
-    public Product(String name, Integer price, Integer stock, String description, Category category, String imageUrl,
+    public Product(String name, Integer price, String description, Category category, String imageUrl,
             List<ProductKeyword> keywords) {
         this.name = name;
         this.price = price;
-        this.stock = stock;
         this.description = description;
         this.category = category;
         this.imageUrl = imageUrl;

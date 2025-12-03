@@ -69,36 +69,37 @@ public class StockService {
 
     public void saveStockDocument(Stock stock, Product product, List<String> keywords) {
         StockDocument doc = StockDocument.builder()
-            .stockId(stock.getId())
-            .productId(product.getId())
-            .productName(product.getName())
-            .category(product.getCategory().name())
-            .imageUrl(product.getImageUrl())
-            .price(stock.getPrice())
-            .quantity(stock.getQuantity())
-            .sales(stock.getSales())
-            .createdAt(stock.getCreatedAt().atOffset(ZoneOffset.UTC))
-            .keywords(keywords)
-            .build();
+                .stockId(stock.getId())
+                .productId(product.getId())
+                .productName(product.getName())
+                .category(product.getCategory().name())
+                .imageUrl(product.getImageUrl())
+                .price(stock.getPrice())
+                .quantity(stock.getQuantity())
+                .sales(stock.getSales())
+                .createdAt(stock.getCreatedAt().atOffset(ZoneOffset.UTC))
+                .keywords(keywords)
+                .build();
 
         elasticsearchTemplate.save(doc);
     }
 
-    public Product createProduct(MultipartFile image, String name, Category category, List<String> keywords){
+    public Product createProduct(MultipartFile image, String name, Integer price, Category category,
+            List<String> keywords) {
 
         Product product;
         try {
-            product = productClient.registerProduct(name, category, image, keywords).getBody();
+            product = productClient.registerProduct(name, price, null, category, image, keywords).getBody();
         } catch (Exception ex) {
             log.error("에러 발생 : {}", ex.getMessage());
             throw new CustomException(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                50301,
-                "현재 상품 서비스를 이용할 수 없습니다.",
-                "담당자에게 문의 후 서비스 다시 시도해주시기 바랍니다.",
-                "SERVICE_UNAVAILABLE");
+                    HttpStatus.SERVICE_UNAVAILABLE,
+                    50301,
+                    "현재 상품 서비스를 이용할 수 없습니다.",
+                    "담당자에게 문의 후 서비스 다시 시도해주시기 바랍니다.",
+                    "SERVICE_UNAVAILABLE");
         }
-        if(product == null){
+        if (product == null) {
             log.error("응답이 null 입니다.");
             throw new RuntimeException("응답이 null 입니다.");
         }
@@ -107,38 +108,37 @@ public class StockService {
     }
 
     public Stock createStoke(Product product, Integer price, MultipartFile[] detailImages, Integer quantity)
-        throws IOException {
+            throws IOException {
         Stock stock = Stock.builder()
-            .productId(product.getId())
-            .saleState(SaleState.ON_SALE)
-            .price(price)
-            .quantity(quantity)
-            .detailImages(new ArrayList<>())
-            .build();
+                .productId(product.getId())
+                .saleState(SaleState.ON_SALE)
+                .price(price)
+                .quantity(quantity)
+                .detailImages(new ArrayList<>())
+                .build();
 
         List<StockDetailImage> detailImageList = new ArrayList<>();
 
-        for(MultipartFile detailImage : detailImages){
+        for (MultipartFile detailImage : detailImages) {
             String imageName = UUID.randomUUID().toString();
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(imageName)
-                .acl(ObjectCannedACL.PUBLIC_READ)
-                .contentType(detailImage.getContentType())
-                .build();
+                    .bucket(bucketName)
+                    .key(imageName)
+                    .acl(ObjectCannedACL.PUBLIC_READ)
+                    .contentType(detailImage.getContentType())
+                    .build();
 
             s3Client.putObject(
-                putObjectRequest,
-                RequestBody.fromInputStream(detailImage.getInputStream(), detailImage.getSize())
-            );
+                    putObjectRequest,
+                    RequestBody.fromInputStream(detailImage.getInputStream(), detailImage.getSize()));
 
             String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
-                bucketName, region, imageName);
+                    bucketName, region, imageName);
 
             StockDetailImage stockDetailImage = StockDetailImage.builder()
-                .imageUrl(imageUrl)
-                .stock(stock)
-                .build();
+                    .imageUrl(imageUrl)
+                    .stock(stock)
+                    .build();
 
             detailImageList.add(stockDetailImage);
         }
@@ -146,28 +146,27 @@ public class StockService {
         stock.getDetailImages().addAll(detailImageList);
         Stock save = stockRepository.save(stock);
 
-        List<String> keywords = productClient.getProductKeywords(List.of(product.getId())).getOrDefault(product.getId(), List.of());
+        List<String> keywords = productClient.getProductKeywords(List.of(product.getId())).getOrDefault(product.getId(),
+                List.of());
         saveStockDocument(stock, product, keywords);
         return save;
     }
 
     // 상품 목록 조회
     public Page<StockWithProductResponse> getStocksWithProductInfo(
-        String search,
-        Category category,
-        Integer minPrice,
-        Integer maxPrice,
-        String sortBy,
-        int page, int size
-    ) {
+            String search,
+            Category category,
+            Integer minPrice,
+            Integer maxPrice,
+            String sortBy,
+            int page, int size) {
         try {
             // 1. 쿼리 생성
             Query query = stockQueryBuilder.buildQuery(
-                search,
-                category != null ? category.name() : null,
-                minPrice,
-                maxPrice
-            );
+                    search,
+                    category != null ? category.name() : null,
+                    minPrice,
+                    maxPrice);
 
             // 2. 정렬 기준 생성
             SortOptions sortOption = switch (sortBy) {
@@ -180,31 +179,30 @@ public class StockService {
 
             // 3. 검색 요청 생성
             SearchRequest request = SearchRequest.of(s -> s
-                .index("stock_index")
-                .query(query)
-                .collapse(c -> c.field("stockId"))
-                .sort(List.of(sortOption)) // sortOption 하나만 넣을 경우에도 List.of로 감싸야 함
-                .from(page * size)
-                .size(size)
-            );
+                    .index("stock_index")
+                    .query(query)
+                    .collapse(c -> c.field("stockId"))
+                    .sort(List.of(sortOption)) // sortOption 하나만 넣을 경우에도 List.of로 감싸야 함
+                    .from(page * size)
+                    .size(size));
 
             // 4. 검색 실행
             SearchResponse<StockDocument> response = elasticsearchClient.search(request, StockDocument.class);
 
             // 5. 결과 매핑
             List<StockDocument> docs = response.hits().hits().stream()
-                .map(Hit::source)
-                .filter(Objects::nonNull)
-                .toList();
+                    .map(Hit::source)
+                    .filter(Objects::nonNull)
+                    .toList();
 
             // 6. 연관된 product 정보 조회
             List<Product> products = productClient.getProductBySearch(search, category);
             Map<Long, Product> productMap = products.stream()
-                .collect(Collectors.toMap(Product::getId, Function.identity()));
+                    .collect(Collectors.toMap(Product::getId, Function.identity()));
 
             List<StockWithProductResponse> content = docs.stream()
-                .map(doc -> new StockWithProductResponse(doc.toStock(), productMap.get(doc.getProductId())))
-                .toList();
+                    .map(doc -> new StockWithProductResponse(doc.toStock(), productMap.get(doc.getProductId())))
+                    .toList();
 
             long total = response.hits().total() != null ? response.hits().total().value() : content.size();
 
@@ -213,27 +211,24 @@ public class StockService {
         } catch (IOException e) {
             log.error("Elasticsearch 검색 중 오류 발생", e);
             throw new CustomException(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                50001,
-                "상품 목록 검색 중 오류가 발생했습니다.",
-                "나중에 다시 시도해주세요.",
-                "ES_SEARCH_FAILED"
-            );
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    50001,
+                    "상품 목록 검색 중 오류가 발생했습니다.",
+                    "나중에 다시 시도해주세요.",
+                    "ES_SEARCH_FAILED");
         }
     }
 
     public StockDetailResponse getStockDetail(Long stockId) {
         Stock stock = stockRepository.findWithDetailImagesById(stockId)
-            .orElseThrow(() -> new CustomException(
-                HttpStatus.NOT_FOUND, 40401, "해당 재고를 찾을 수 없습니다.", "재고 ID를 확인해주세요.", "STOCK_NOT_FOUND"
-            ));
+                .orElseThrow(() -> new CustomException(
+                        HttpStatus.NOT_FOUND, 40401, "해당 재고를 찾을 수 없습니다.", "재고 ID를 확인해주세요.", "STOCK_NOT_FOUND"));
 
         Product product = productClient.getProductInfoList(List.of(stock.getProductId()))
-            .stream()
-            .findFirst()
-            .orElseThrow(() -> new CustomException(
-                HttpStatus.NOT_FOUND, 40402, "상품 정보를 찾을 수 없습니다.", "상품 ID를 확인해주세요.", "PRODUCT_NOT_FOUND"
-            ));
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new CustomException(
+                        HttpStatus.NOT_FOUND, 40402, "상품 정보를 찾을 수 없습니다.", "상품 ID를 확인해주세요.", "PRODUCT_NOT_FOUND"));
 
         List<StockDetailImage> images = stock.getDetailImages(); // 이미 FetchType.LAZY면 자동 조회됨
 
@@ -251,20 +246,20 @@ public class StockService {
         return productClient.getProductById(productId);
     }
 
-    //elastic data migration
+    // elastic data migration
     public void migrateExistingStocksToES() {
         List<Stock> stocks = stockRepository.findAll(); // 또는 필요한 조건
 
         // productId -> product 조회
         List<Long> productIds = stocks.stream()
-            .map(Stock::getProductId)
-            .distinct()
-            .toList();
+                .map(Stock::getProductId)
+                .distinct()
+                .toList();
 
         // 상품 정보 조회
         List<Product> products = productClient.getProductInfoList(productIds);
         Map<Long, Product> productMap = products.stream()
-            .collect(Collectors.toMap(Product::getId, Function.identity()));
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
 
         // 상품 키워드 정보 조회
         Map<Long, List<String>> keywordMap = productClient.getProductKeywords(productIds);
