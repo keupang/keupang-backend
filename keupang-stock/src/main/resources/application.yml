@@ -47,3 +47,10 @@ eureka:
     instance:
         instance-id: stock-service-${spring.application.instance-id:${random.value}}
         prefer-ip-address: true
+
+aws:
+    s3:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+        bucket: ${aws.s3.bucket}
+        region: ${aws.s3.region}
