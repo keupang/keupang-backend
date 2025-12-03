@@ -35,13 +35,13 @@ public class UserController {
     private final EmailService emailService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> getUsers(@ModelAttribute UserRequest userRequest) {
+    public ResponseEntity<?> getUsers(@RequestBody UserRequest userRequest) {
         log.debug(userRequest.getUserPassword());
         User user1 = userService.registerUser(userRequest);
         if (user1 == null) {
             log.info("회원가입 실패");
             throw new CustomException(HttpStatus.BAD_REQUEST, 40000, "회원가입 과정에서 문제가 발생했습니다.",
-                "기입된 정보를 다시 확인하고 시도해주세요.", null);
+                    "기입된 정보를 다시 확인하고 시도해주세요.", null);
         }
         // "content" 필드 값 추가
         Map<String, Object> content = new HashMap<>();
@@ -62,14 +62,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
     }
 
-    @SecurityRequirement(name = "Authorization") //swagger Jwt 헤더 필요 표시
+    @SecurityRequirement(name = "Authorization") // swagger Jwt 헤더 필요 표시
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserById(
-        @PathVariable Long userId,
-        @RequestHeader("Authorization") String token) {
-        if(token == null){
+            @PathVariable Long userId,
+            @RequestHeader("Authorization") String token) {
+        if (token == null) {
             throw new CustomException(HttpStatus.UNAUTHORIZED, 40182, "jwt 토큰이 없습니다.",
-                "로그인 후 접근해주세요.", "EMPTY_ACCESS_TOKEN");
+                    "로그인 후 접근해주세요.", "EMPTY_ACCESS_TOKEN");
         }
         userService.validateToken(token);
 
@@ -79,7 +79,7 @@ public class UserController {
         User user = userService.getUserById(userId);
         if (user == null) {
             throw new CustomException(HttpStatus.NOT_FOUND, 40400, "사용자를 찾을 수 없습니다.",
-                "요청한 사용자 정보를 확인해주세요.", null);
+                    "요청한 사용자 정보를 확인해주세요.", null);
         }
 
         // "content" 필드 값 추가
@@ -165,8 +165,8 @@ public class UserController {
         // 이메일 내용
         String subject = "Keupang 이메일 인증";
         String body = "<h1>Your Verification Code</h1>"
-            + "<p>Your verification code is:</p>"
-            + "<h2>" + verificationCode + "</h2>";
+                + "<p>Your verification code is:</p>"
+                + "<h2>" + verificationCode + "</h2>";
 
         // 이메일 전송
         emailService.sendEmail(email, subject, body);
@@ -215,27 +215,25 @@ public class UserController {
             return ResponseEntity.ok(responseBody);
         } else {
             throw new CustomException(
-                HttpStatus.BAD_REQUEST,
-                40101,
-                "인증 토큰이 올바르지 않거나 만료되었습니다.",
-                "인증 번호를 다시 받은 후에 시도 해주세요.",
-                "INVALID_VERIFY_TOKEN"
-            );
+                    HttpStatus.BAD_REQUEST,
+                    40101,
+                    "인증 토큰이 올바르지 않거나 만료되었습니다.",
+                    "인증 번호를 다시 받은 후에 시도 해주세요.",
+                    "INVALID_VERIFY_TOKEN");
         }
     }
 
     @Hidden
     @GetMapping("/jwt/{email}")
-    public ResponseEntity<User> findByUserEmail(@PathVariable String email){
+    public ResponseEntity<User> findByUserEmail(@PathVariable String email) {
         User user = userService.findByUserEmail(email);
-        if (user == null){
+        if (user == null) {
             throw new CustomException(
-                HttpStatus.UNAUTHORIZED,
-                40101,
-                "토큰에 해당하는 유저가 없습니다.",
-                "로그인을 다시 시도해주세요",
-                "INVALID_VERIFY_TOKEN"
-            );
+                    HttpStatus.UNAUTHORIZED,
+                    40101,
+                    "토큰에 해당하는 유저가 없습니다.",
+                    "로그인을 다시 시도해주세요",
+                    "INVALID_VERIFY_TOKEN");
         }
         return ResponseEntity.ok(user);
     }
