@@ -32,7 +32,7 @@ eureka:
         fetch-registry: true
         register-with-eureka: true
         service-url:
-            defaultZone: http://${security_username}:${security_password}@eureka-server:8761/eureka
+            defaultZone: https://admin:admin@keupang-eureka.onrender.com/eureka/
     instance:
         instance-id: auth-service-${spring.application.instance-id:${random.value}}
         prefer-ip-address: true

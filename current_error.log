@@ -1,0 +1,14 @@
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Could not open cp_settings generic class cache for settings file 'D:\Dev\keupang\keupang-backend\settings.gradle' (C:\Users\cjh00\.gradle\caches\8.4\scripts\awsfemm207i7v0r4qcrejqheq).
+> BUG! exception in phase 'semantic analysis' in source unit '_BuildScript_' Unsupported class file major version 66
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1s

@@ -37,36 +37,6 @@ spring:
                     uri:
                         lb://user
                     predicates:
-                        - Path=/user/**
-                -   id: auth-swagger
-                    uri:
-                        lb://auth
-                    predicates:
-                        - Path=/auth/**
-                -   id: product
-                    uri:
-                        lb://product
-                    predicates:
-                        - Path=/api/product/**
-            discovery:
-                locator:
-                    enabled: true
-
-server:
-    port: 8080
-
-eureka:
-    client:
-        register-with-eureka: true
-        fetch-registry: true
-        service-url:
-            defaultZone: http://${security_username}:${security_password}@eureka-server:8761/eureka
-
-springdoc:
-    swagger-ui:
-        path: /swagger-ui.html
-        urls:
-            -   url: /user/v3/api-docs
                 name: user
             -   url: /auth/v3/api-docs
                 name: auth

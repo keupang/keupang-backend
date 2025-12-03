@@ -1,0 +1,42 @@
+server:
+    port: ${PORT:8085}
+
+spring:
+    application:
+        name: review
+    profiles:
+        active: dev
+    config:
+        import: configserver:https://keupang-config.onrender.com
+    datasource:
+        url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+        driver-class-name: com.mysql.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+        database-platform: org.hibernate.dialect.MySQLDialect
+        open-in-view: false
+
+springdoc:
+    api-docs:
+        path: /review/v3/api-docs
+    swagger-ui:
+        path: /review/swagger-ui.html
+
+openapi:
+    service:
+        # API Gateway 포트
+        url: https://api.keupang.store
+
+eureka:
+    client:
+        fetch-registry: true
+        register-with-eureka: true
+        service-url:
+            defaultZone: https://admin:admin@keupang-eureka.onrender.com/eureka/
+    instance:
+        instance-id: review-service-${spring.application.instance-id:${random.value}}
+        prefer-ip-address: true

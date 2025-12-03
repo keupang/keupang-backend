@@ -9,7 +9,7 @@ spring:
     config:
         import: configserver:https://keupang-config.onrender.com
     datasource:
-        url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${USER_DB_NAME}
+        url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
         username: ${DB_USERNAME}
         password: ${DB_PASSWORD}
         driver-class-name: com.mysql.jdbc.Driver
@@ -36,7 +36,7 @@ eureka:
         fetch-registry: true
         register-with-eureka: true
         service-url:
-            defaultZone: http://${security_username}:${security_password}@eureka-server:8761/eureka
+            defaultZone: https://admin:admin@keupang-eureka.onrender.com/eureka/
     instance:
         instance-id: product-service-${spring.application.instance-id:${random.value}}
         prefer-ip-address: true
