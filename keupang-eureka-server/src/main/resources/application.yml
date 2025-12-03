@@ -3,7 +3,7 @@ spring:
         name: keupang-eureka-server
 
 server:
-    port: 8761
+    port: ${PORT:8761}
 eureka:
     client:
         register-with-eureka: false
