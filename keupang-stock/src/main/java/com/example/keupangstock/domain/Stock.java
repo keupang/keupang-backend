@@ -28,17 +28,18 @@ public class Stock {
     private Integer price;
     private Integer quantity;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StockDetailImage> detailImages = new ArrayList<>();
 
     @CreationTimestamp
-    private LocalDateTime createdAt; //최신순 정렬
+    private LocalDateTime createdAt; // 최신순 정렬
 
     private Integer sales = 0;
 
     @Builder
     public Stock(Long id, Long productId, SaleState saleState, Integer price, Integer quantity,
-        List<StockDetailImage> detailImages, Integer sales, LocalDateTime createdAt) {
+            List<StockDetailImage> detailImages, Integer sales, LocalDateTime createdAt) {
         this.id = id;
         this.productId = productId;
         this.saleState = saleState;
