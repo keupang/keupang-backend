@@ -58,8 +58,7 @@ dependencies {
     //feign client
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
-    //elastic-search
-    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 

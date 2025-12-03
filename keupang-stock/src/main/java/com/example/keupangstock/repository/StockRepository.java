@@ -10,8 +10,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface StockRepository extends JpaRepository<Stock, Long> {
     Page<Stock> findByProductIdInAndPriceBetween(Collection<Long> productId, Integer price,
-        Integer price2, Pageable pageable);
+            Integer price2, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"detailImages"})
+    Page<Stock> findByPriceBetween(Integer minPrice, Integer maxPrice, Pageable pageable);
+
+    @EntityGraph(attributePaths = { "detailImages" })
     Optional<Stock> findWithDetailImagesById(Long id);
 }

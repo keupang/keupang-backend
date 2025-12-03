@@ -142,9 +142,4 @@ public class StockController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/admin/reindex")
-    public ResponseEntity<Void> reindexAll() {
-        stockService.migrateExistingStocksToES();
-        return ResponseEntity.ok().build();
-    }
 }
