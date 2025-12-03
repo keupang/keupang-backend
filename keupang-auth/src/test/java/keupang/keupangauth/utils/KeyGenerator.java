@@ -18,9 +18,15 @@ public class KeyGenerator {
         String privateKeyBase64 = Base64.getEncoder().encodeToString(privateKey.getEncoded());
         String publicKeyBase64 = Base64.getEncoder().encodeToString(publicKey.getEncoded());
 
+        // PemUtils expects the Env Var to be Base64 encoded version of the PEM/Key
+        // String.
+        // So we need to encode the Base64 key string AGAIN.
+        String envVarPrivateKey = Base64.getEncoder().encodeToString(privateKeyBase64.getBytes());
+        String envVarPublicKey = Base64.getEncoder().encodeToString(publicKeyBase64.getBytes());
+
         System.out.println("--- JWT PRIVATE KEY (jwt_private_key) ---");
-        System.out.println(privateKeyBase64);
+        System.out.println(envVarPrivateKey);
         System.out.println("\n--- JWT PUBLIC KEY (jwt_public_key) ---");
-        System.out.println(publicKeyBase64);
+        System.out.println(envVarPublicKey);
     }
 }
