@@ -43,6 +43,21 @@ spring:
                         lb://auth
                     predicates:
                         - Path=/auth/**
+                -   id: product-swagger
+                    uri:
+                        lb://product
+                    predicates:
+                        - Path=/product/**
+                -   id: stock-swagger
+                    uri:
+                        lb://stock
+                    predicates:
+                        - Path=/stock/**
+                -   id: review-swagger
+                    uri:
+                        lb://review
+                    predicates:
+                        - Path=/review/**
                 -   id: product
                     uri:
                         lb://product
