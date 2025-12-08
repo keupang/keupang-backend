@@ -56,4 +56,4 @@ springdoc:
 openapi:
     service:
         # API Gateway 포트
-        url: https://api.keupang.store
+        url: https://keupang-gateway.onrender.com
