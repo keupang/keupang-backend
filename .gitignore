@@ -50,3 +50,6 @@ out/
 
 ### nohup.out ###
 nohup.out
+
+# Agent directory
+.agent/

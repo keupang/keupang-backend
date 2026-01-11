@@ -1,107 +1,191 @@
+version: '3.8'
+
 services:
-    mysql:
-        image: mysql:8.0.39
-        container_name: service-mysql
-        environment:
-            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-            MYSQL_DATABASE: ${USER_DB_NAME}
-            TZ: Asia/Seoul
-        ports:
-            - "3307:${DB_PORT}"
-        volumes:
-            - ./mysql-data:/var/lib/mysql
-        networks:
-            - msa-network
-    redis:
-        image: redis:latest
-        container_name: service-redis
-        ports:
-            - "6379:6379"
-        volumes:
-            - ./redis-data:/data # 데이터 지속화를 위한 volume
-        networks:
-            - msa-network
+  # Infrastructure
+  mysql:
+    image: mysql:8.0.39
+    container_name: service-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${USER_DB_NAME}
+      TZ: Asia/Seoul
+    ports:
+      - "3307:${DB_PORT}"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    networks:
+      - msa-network
 
-    config-server:
-        image: playdodo/keupang-config-server:1.0
-        container_name: keupang-config-server
-        platform: linux/arm64
-        ports:
-            - "9000:9000"
-        environment:
-            - SPRING_PROFILES_ACTIVE=prod
-            - private_key=${private_key}
-        networks:
-            - msa-network
+  redis:
+    image: redis:latest
+    container_name: service-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+    networks:
+      - msa-network
 
-    api-gateway:
-        image: playdodo/keupang-api-gateway:1.0
-        container_name: keupang-api-gateway
-        platform: linux/arm64
-        ports:
-            - "8080:8080"
-        depends_on:
-            - eureka-server
-        environment:
-            - security_username=${security_username}
-            - security_password=${security_password}
-        networks:
-            - msa-network
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: root # For Docker in Docker if needed later
+    ports:
+      - "9090:8080" # Jenkins web interface
+      - "50000:50000"
+    volumes:
+      - ./jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock # Allow Jenkins to spawn containers
+    networks:
+      - msa-network
+    restart: unless-stopped
 
-    service-user:
-        image: playdodo/keupang-service-user:1.0
-        container_name: keupang-service-user
-        platform: linux/arm64
-        deploy:
-            mode: replicated
-            restart_policy:
-                condition: on-failure
-        depends_on:
-            - redis
-            - eureka-server
-            - config-server
-            - mysql
-        environment:
-            - REDIS_HOST=service-redis
-            - REDIS_PORT=6379
-            - security_username=${security_username}
-            - security_password=${security_password}
-            - DB_HOST=${DB_HOST}
-            - DB_PORT=${DB_PORT}
-            - DB_USERNAME=${DB_USERNAME}
-            - DB_PASSWORD=${DB_PASSWORD}
-            - USER_DB_NAME=${USER_DB_NAME}
-            - google_username=${google_username}
-            - google_password=${google_password}
-        networks:
-            - msa-network
+  # Core Services
+  eureka-server:
+    build:
+      context: ./keupang-eureka-server
+      dockerfile: Dockerfile
+    container_name: keupang-eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - TZ=Asia/Seoul
+    networks:
+      - msa-network
 
-    service-product:
-        image: playdodo/keupang-service-product:1.0
-        container_name: keupang-service-product
-        platform: linux/arm64
-        depends_on:
-            - eureka-server
-            - config-server
-        environment:
-            - security_username=${security_username}
-            - security_password=${security_password}
-            - DB_HOST=${DB_HOST}
-            - DB_PORT=${DB_PORT}
-            - DB_USERNAME=${DB_USERNAME}
-            - DB_PASSWORD=${DB_PASSWORD}
-            - PRODUCT_DB_NAME=${PRODUCT_DB_NAME}
-        networks:
-            - msa-network
+  config-server:
+    build:
+      context: ./keupang-config-server
+      dockerfile: Dockerfile
+    container_name: keupang-config-server
+    ports:
+      - "9000:9000"
+    depends_on:
+      - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - private_key=${private_key}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - TZ=Asia/Seoul
+    networks:
+      - msa-network
 
-    eureka-server:
-        image: playdodo/keupang-eureka-server:1.0
-        container_name: keupang-eureka-server
-        platform: linux/arm64
-        ports:
-            - "8761:8761"
-        networks:
-            - msa-network
+  api-gateway:
+    build:
+      context: ./keupang-gateway
+      dockerfile: Dockerfile
+    container_name: keupang-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+      - config-server
+    environment:
+      - security_username=${security_username}
+      - security_password=${security_password}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:9000
+      - TZ=Asia/Seoul
+    networks:
+      - msa-network
+
+  # Domain Services
+  keupang-auth:
+    build: ./keupang-auth
+    container_name: keupang-auth
+    depends_on:
+      - eureka-server
+      - config-server
+      - mysql
+      - redis
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:9000
+      - REDIS_HOST=service-redis
+      - DB_HOST=service-mysql
+      - TZ=Asia/Seoul
+    networks:
+      - msa-network
+
+  keupang-user:
+    build: ./keupang-user
+    container_name: keupang-user
+    depends_on:
+      - eureka-server
+      - config-server
+      - mysql
+      - redis
+    environment:
+      - REDIS_HOST=service-redis
+      - REDIS_PORT=6379
+      - security_username=${security_username}
+      - security_password=${security_password}
+      - DB_HOST=service-mysql
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - USER_DB_NAME=${USER_DB_NAME}
+      - google_username=${google_username}
+      - google_password=${google_password}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:9000
+      - TZ=Asia/Seoul
+    networks:
+      - msa-network
+
+  keupang-product:
+    build: ./keupang-product
+    container_name: keupang-product
+    depends_on:
+      - eureka-server
+      - config-server
+      - mysql
+    environment:
+      - security_username=${security_username}
+      - security_password=${security_password}
+      - DB_HOST=service-mysql
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - PRODUCT_DB_NAME=${PRODUCT_DB_NAME}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:9000
+      - TZ=Asia/Seoul
+    networks:
+      - msa-network
+
+  keupang-stock:
+    build: ./keupang-stock
+    container_name: keupang-stock
+    depends_on:
+      - eureka-server
+      - config-server
+      - mysql
+      - redis
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:9000
+      - REDIS_HOST=service-redis
+      - DB_HOST=service-mysql
+      - TZ=Asia/Seoul
+    networks:
+      - msa-network
+
+  keupang-review:
+    build: ./keupang-review
+    container_name: keupang-review
+    depends_on:
+      - eureka-server
+      - config-server
+      - mysql
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:9000
+      - DB_HOST=service-mysql
+      - TZ=Asia/Seoul
+    networks:
+      - msa-network
+
 networks:
-    msa-network:
-        driver: bridge
+  msa-network:
+    driver: bridge
