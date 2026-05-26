@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "auth-service", url = "https://api.keupang.store/api/auth")
+@FeignClient(name = "auth", path = "/api/auth")
 public interface AuthClient {
     @PostMapping("/token")
     Map<String, String> generateToken(@RequestParam("email") String email, @RequestParam("role") String role);
