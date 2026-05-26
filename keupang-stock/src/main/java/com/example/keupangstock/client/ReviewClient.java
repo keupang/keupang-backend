@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "review-service", url = "https://api.keupang.store/api/review")
+@FeignClient(name = "review", path = "/api/review")
 public interface ReviewClient {
     @GetMapping("/{productId}")
     List<ReviewResponse> getReviewsByProductId(@PathVariable("productId") Long productId);
