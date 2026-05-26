@@ -3,17 +3,11 @@ spring:
         exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
     application:
         name: auth
+    profiles:
+        active: ${SPRING_PROFILES_ACTIVE:dev}
 
 server:
     port: ${PORT:8080}
-    profiles:
-        active: dev
-    config:
-        import: configserver:https://keupang-config.onrender.com
-    data:
-        redis:
-            host: service-redis
-            port: 6379
 
 
 springdoc:

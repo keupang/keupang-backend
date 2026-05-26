@@ -26,20 +26,6 @@ services:
     networks:
       - msa-network
 
-  jenkins:
-    image: jenkins/jenkins:lts
-    container_name: jenkins
-    user: root # For Docker in Docker if needed later
-    ports:
-      - "9090:8080" # Jenkins web interface
-      - "50000:50000"
-    volumes:
-      - ./jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock # Allow Jenkins to spawn containers
-    networks:
-      - msa-network
-    restart: unless-stopped
-
   # Core Services
   eureka-server:
     build:
@@ -99,6 +85,7 @@ services:
       - mysql
       - redis
     environment:
+      - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - CONFIG_SERVER_URL=http://config-server:9000
       - REDIS_HOST=service-redis
@@ -189,3 +176,4 @@ services:
 networks:
   msa-network:
     driver: bridge
+    name: keupang-msa-network

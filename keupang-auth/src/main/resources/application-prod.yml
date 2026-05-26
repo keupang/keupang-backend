@@ -1,0 +1,7 @@
+spring:
+    config:
+        import: configserver:${CONFIG_SERVER_URL:http://config-server:9000}
+    data:
+        redis:
+            host: ${REDIS_HOST:service-redis}
+            port: ${REDIS_PORT:6379}
