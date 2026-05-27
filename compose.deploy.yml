@@ -1,0 +1,253 @@
+name: keupang
+
+services:
+  mysql:
+    image: mysql:8.0.39
+    container_name: keupang-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Seoul
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      keupang-network:
+        aliases:
+          - service-mysql
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: keupang-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      keupang-network:
+        aliases:
+          - service-redis
+    restart: unless-stopped
+
+  eureka-server:
+    build:
+      context: ./keupang-eureka-server
+    container_name: keupang-eureka-server
+    environment:
+      security_username: ${security_username}
+      security_password: ${security_password}
+      TZ: Asia/Seoul
+    expose:
+      - "8761"
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
+  config-server:
+    build:
+      context: ./keupang-config-server
+    container_name: keupang-config-server
+    environment:
+      private_key: ${private_key}
+      security_username: ${security_username}
+      security_password: ${security_password}
+      TZ: Asia/Seoul
+    expose:
+      - "9000"
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: ./keupang-gateway
+    container_name: keupang-gateway
+    environment:
+      security_username: ${security_username}
+      security_password: ${security_password}
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL}
+      FRONTEND_LOCAL_ORIGIN: ${FRONTEND_LOCAL_ORIGIN}
+      FRONTEND_PUBLIC_ORIGIN: ${FRONTEND_PUBLIC_ORIGIN}
+      FRONTEND_ROOT_ORIGIN: ${FRONTEND_ROOT_ORIGIN}
+      TZ: Asia/Seoul
+    ports:
+      - "${GATEWAY_HOST_PORT:-8080}:8080"
+    depends_on:
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
+  auth:
+    build:
+      context: ./keupang-auth
+    container_name: keupang-auth
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      CONFIG_SERVER_URL: http://${security_username}:${security_password}@config-server:9000
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      security_username: ${security_username}
+      security_password: ${security_password}
+      jwt_private_key: ${jwt_private_key}
+      jwt_public_key: ${jwt_public_key}
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL}
+      TZ: Asia/Seoul
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
+  user:
+    build:
+      context: ./keupang-user
+    container_name: keupang-user
+    environment:
+      security_username: ${security_username}
+      security_password: ${security_password}
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      USER_DB_NAME: ${USER_DB_NAME}
+      google_username: ${google_username}
+      google_password: ${google_password}
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL}
+      TZ: Asia/Seoul
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
+  product:
+    build:
+      context: ./keupang-product
+    container_name: keupang-product
+    environment:
+      security_username: ${security_username}
+      security_password: ${security_password}
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      PRODUCT_DB_NAME: ${PRODUCT_DB_NAME}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
+      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
+      AWS_S3_REGION: ${AWS_S3_REGION}
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL}
+      TZ: Asia/Seoul
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
+  stock:
+    build:
+      context: ./keupang-stock
+    container_name: keupang-stock
+    environment:
+      security_username: ${security_username}
+      security_password: ${security_password}
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      STOCK_DB_NAME: ${STOCK_DB_NAME}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
+      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
+      AWS_S3_REGION: ${AWS_S3_REGION}
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL}
+      TZ: Asia/Seoul
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+      product:
+        condition: service_started
+      review:
+        condition: service_started
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
+  review:
+    build:
+      context: ./keupang-review
+    container_name: keupang-review
+    environment:
+      security_username: ${security_username}
+      security_password: ${security_password}
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REVIEW_DB_NAME: ${REVIEW_DB_NAME}
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL}
+      TZ: Asia/Seoul
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+      auth:
+        condition: service_started
+      user:
+        condition: service_started
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
+networks:
+  keupang-network:
+    name: keupang-network
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:
