@@ -39,6 +39,26 @@ services:
           - service-redis
     restart: unless-stopped
 
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: keupang-caddy
+    environment:
+      API_DOMAIN: ${API_DOMAIN}
+      CADDY_EMAIL: ${CADDY_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      gateway:
+        condition: service_started
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
   eureka-server:
     build:
       context: ./keupang-eureka-server
@@ -83,8 +103,8 @@ services:
       FRONTEND_PUBLIC_ORIGIN: ${FRONTEND_PUBLIC_ORIGIN}
       FRONTEND_ROOT_ORIGIN: ${FRONTEND_ROOT_ORIGIN}
       TZ: Asia/Seoul
-    ports:
-      - "${GATEWAY_HOST_PORT:-8080}:8080"
+    expose:
+      - "8080"
     depends_on:
       eureka-server:
         condition: service_started
@@ -250,5 +270,7 @@ networks:
     driver: bridge
 
 volumes:
+  caddy-data:
+  caddy-config:
   mysql-data:
   redis-data:
