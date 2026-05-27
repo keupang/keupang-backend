@@ -2,6 +2,7 @@ package com.example.keupangeurekaserver.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,10 +35,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(){
+    public UserDetailsService userDetailsService(
+        @Value("${security_username:admin}") String username,
+        @Value("${security_password:admin}") String password
+    ){
         UserDetails user1 = User.builder()
-            .username("admin")
-            .password(bCryptPasswordEncoder().encode("admin"))
+            .username(username)
+            .password(bCryptPasswordEncoder().encode(password))
             .roles("ADMIN")
             .build();
         return new InMemoryUserDetailsManager(user1);
