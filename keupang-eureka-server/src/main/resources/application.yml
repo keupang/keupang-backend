@@ -4,8 +4,12 @@ spring:
 
 server:
     port: 8761
+
+security:
+    username: ${security_username:admin}
+    password: ${security_password:admin}
+
 eureka:
     client:
         register-with-eureka: false
         fetch-registry: false
-
