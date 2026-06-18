@@ -2,6 +2,7 @@ package com.example.keupangproduct.service;
 
 import com.example.keupangproduct.domain.Category;
 import com.example.keupangproduct.domain.Product;
+import com.example.keupangproduct.config.S3Properties;
 import com.example.keupangproduct.repository.ProductRepository;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.io.IOException;
@@ -10,7 +11,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,17 +28,14 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final S3Client s3Client;
-    @Value("${aws.s3.bucket}")
-    private String bucketName;
-    @Value("${aws.s3.region}")
-    private String region;
+    private final S3Properties s3Properties;
 
     public Product createProduct(String name, Category category, MultipartFile image)
         throws IOException {
         String imageName = UUID.randomUUID().toString();
         log.info("image type : {}", image.getContentType());
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(s3Properties.getBucket())
                     .key(imageName)
                         .acl(ObjectCannedACL.PUBLIC_READ)
                             .contentType(image.getContentType())
@@ -49,7 +46,7 @@ public class ProductService {
             RequestBody.fromInputStream(image.getInputStream(), image.getSize())
         );
         String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
-            bucketName, region,imageName);
+            s3Properties.getBucket(), s3Properties.getRegion(), imageName);
 
         Product product = Product.builder()
             .name(name)

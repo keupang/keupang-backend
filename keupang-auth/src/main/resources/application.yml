@@ -21,6 +21,10 @@ openapi:
         # API Gateway 포트
         url: "${GATEWAY_PUBLIC_URL:http://localhost:8080}"
 
+jwt:
+    private-key: ${jwt_private_key:}
+    public-key: ${jwt_public_key:}
+
 eureka:
     client:
         fetch-registry: true

@@ -10,9 +10,12 @@ spring:
                     private-key: ${private_key}
 server:
     port: 9000
+
+security:
+    username: ${security_username:admin}
+    password: ${security_password:admin}
 #logging:
 #    level:
 #        org.springframework.cloud.config.server: DEBUG
-
 
 
