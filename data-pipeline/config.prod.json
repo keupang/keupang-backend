@@ -1,0 +1,31 @@
+{
+  "bucket": "keupang-image",
+  "region": "ap-northeast-2",
+  "s3_prefix": "keupang/catalog-v1",
+  "public_base_url": "https://keupang-image.s3.ap-northeast-2.amazonaws.com",
+  "db": {
+    "product_database": "keupang_product",
+    "stock_database": "keupang_stock",
+    "user_database": "keupang_user",
+    "review_database": "keupang_review",
+    "seed_seller_email": "catalog-seller@keupang.local",
+    "seed_seller_name": "규팡 카탈로그 셀러",
+    "seed_user_password_hash": "$2y$10$9SH3PF.gcplcuLcADZlVwO9lXY2W/KoM/j3sumxbnwvkUC77fJ3Gu",
+    "truncate_before_insert": true
+  },
+  "image": {
+    "format": "WEBP",
+    "quality": 82,
+    "variants": {
+      "main": {
+        "thumb": { "width": 240, "height": 240 },
+        "card": { "width": 600, "height": 600 },
+        "detail": { "width": 1000, "height": 1000 }
+      },
+      "detail": {
+        "md": { "width": 720, "height": 720 },
+        "lg": { "width": 1200, "height": 1200 }
+      }
+    }
+  }
+}

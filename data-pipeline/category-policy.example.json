@@ -1,0 +1,88 @@
+{
+  "default_category": "HOBBY",
+  "category_keywords": {
+    "FASHION": [
+      "amazon fashion",
+      "fashion",
+      "clothing",
+      "shoes",
+      "jewelry",
+      "watches",
+      "luggage"
+    ],
+    "ELECTRONICS": [
+      "electronics",
+      "cell phones",
+      "computers",
+      "camera",
+      "office products",
+      "software"
+    ],
+    "SPORTS": [
+      "sports",
+      "outdoors",
+      "exercise",
+      "fitness"
+    ],
+    "BOOKS": [
+      "books",
+      "kindle",
+      "audible",
+      "magazines"
+    ],
+    "FOOD": [
+      "grocery",
+      "food",
+      "beverages",
+      "pantry"
+    ],
+    "BEAUTY": [
+      "beauty",
+      "skin care",
+      "makeup",
+      "cosmetics",
+      "health",
+      "personal care"
+    ],
+    "HOME": [
+      "home",
+      "kitchen",
+      "furniture",
+      "tools",
+      "home improvement",
+      "patio",
+      "lawn",
+      "garden",
+      "appliances"
+    ],
+    "HOBBY": [
+      "toys",
+      "games",
+      "arts",
+      "crafts",
+      "musical instruments",
+      "movies",
+      "music",
+      "video games",
+      "handmade",
+      "pet supplies",
+      "baby"
+    ],
+    "AUTO": [
+      "automotive",
+      "car",
+      "motorcycle"
+    ]
+  },
+  "price_ranges": {
+    "FASHION": { "min": 12900, "max": 199900, "step": 100 },
+    "ELECTRONICS": { "min": 19900, "max": 799900, "step": 100 },
+    "SPORTS": { "min": 9900, "max": 299900, "step": 100 },
+    "BOOKS": { "min": 8000, "max": 45000, "step": 100 },
+    "FOOD": { "min": 3900, "max": 79900, "step": 100 },
+    "BEAUTY": { "min": 5900, "max": 129900, "step": 100 },
+    "HOME": { "min": 9900, "max": 399900, "step": 100 },
+    "HOBBY": { "min": 5900, "max": 249900, "step": 100 },
+    "AUTO": { "min": 9900, "max": 499900, "step": 100 }
+  }
+}

@@ -1,0 +1,3 @@
+source_id,name,category,price,quantity,main_image_url,detail_image_urls
+sample-001,Keupang Sample Wireless Keyboard,ELECTRONICS,39900,120,https://placehold.co/1200x900/png?text=Keyboard,https://placehold.co/1600x900/png?text=Keyboard+Detail+1|https://placehold.co/1200x1200/png?text=Keyboard+Detail+2
+sample-002,Keupang Sample Running Shoes,FASHION,72900,80,https://placehold.co/1000x1000/png?text=Shoes,https://placehold.co/1600x1200/png?text=Shoes+Detail

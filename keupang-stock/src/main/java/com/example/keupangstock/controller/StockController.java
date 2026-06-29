@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,7 +41,8 @@ public class StockController {
         @RequestParam Category category,
         @RequestPart MultipartFile image,
         @RequestPart MultipartFile [] detailImages,
-        @RequestParam Integer quantity
+        @RequestParam Integer quantity,
+        @RequestHeader(value = "Authorization", required = false) String token
     ){
 
         try {
@@ -49,7 +51,7 @@ public class StockController {
             Long finalProductId = productId.orElseGet(() -> stockService.createProduct(image, name, category));
             log.info("finalProductId = {}", finalProductId);
             //재고 등록
-            Stock stock = stockService.createStoke(finalProductId, price, detailImages, quantity);
+            Stock stock = stockService.createStoke(finalProductId, price, detailImages, quantity, token);
 
             Map<String, Object> content = new HashMap<>();
 

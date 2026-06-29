@@ -69,6 +69,20 @@ prod branch push/merge
   -> docker compose up -d
 ```
 
+## Data Pipeline
+
+상품 데이터는 `data-pipeline`에서 Keupang 서비스 형식으로 가공할 수 있습니다.
+
+파이프라인 역할:
+
+- 원천 CSV 데이터 검증
+- 상품 대표/상세 이미지 다운로드
+- 프론트 표시 위치에 맞춘 이미지 variant 생성
+- S3 prefix 규칙에 맞춘 업로드
+- `keupang_product`, `keupang_stock` DB 적재용 `seed.sql` 생성
+
+자세한 사용법은 `data-pipeline/README.md`를 참고합니다.
+
 ## Required Environment
 
 실제 배포 환경에서는 repository root에 `.env.deploy`를 준비하거나 Jenkins의 Secret file credential로 등록합니다. 민감 정보가 포함되므로 `.env.deploy`는 Git에 commit하지 않습니다.

@@ -5,6 +5,7 @@ import com.example.keupangproduct.domain.Product;
 import com.example.keupangproduct.exception.CustomException;
 import com.example.keupangstock.client.ProductClient;
 import com.example.keupangstock.client.ReviewClient;
+import com.example.keupangstock.client.AuthClient;
 import com.example.keupangstock.config.S3Properties;
 import com.example.keupangstock.domain.SaleState;
 import com.example.keupangstock.domain.Stock;
@@ -46,6 +47,7 @@ public class StockService {
     private final S3Client s3Client;
     private final ReviewClient reviewClient;
     private final S3Properties s3Properties;
+    private final AuthClient authClient;
 
     public Long createProduct(MultipartFile image, String name, Category category){
 
@@ -90,13 +92,15 @@ public class StockService {
         }
     }
 
-    public Stock createStoke(Long productId, Integer price, MultipartFile[] detailImages, Integer quantity)
+    public Stock createStoke(Long productId, Integer price, MultipartFile[] detailImages, Integer quantity, String token)
         throws IOException {
+        String sellerEmail = resolveSellerEmail(token);
         Stock stock = Stock.builder()
             .productId(productId)
             .saleState(SaleState.ON_SALE)
             .price(price)
             .quantity(quantity)
+            .sellerEmail(sellerEmail)
             .detailImages(new ArrayList<>())
             .build();
 
@@ -130,6 +134,28 @@ public class StockService {
         stock.getDetailImages().addAll(detailImageList);
 
         return stockRepository.save(stock);
+    }
+
+    private String resolveSellerEmail(String token) {
+        if (token == null || token.isBlank()) {
+            return "unknown@keupang.local";
+        }
+
+        Map<String, Object> authResponse = authClient.validateToken(token);
+        String role = (String) authResponse.get("role");
+        String email = (String) authResponse.get("email");
+
+        if (!"USER".equals(role) && !"ADMIN".equals(role)) {
+            throw new CustomException(
+                HttpStatus.UNAUTHORIZED,
+                40181,
+                "접근 권한이 없습니다.",
+                "유효한 역할이 필요합니다.",
+                "FORBIDDEN_ACCESS_TOKEN"
+            );
+        }
+
+        return email != null && !email.isBlank() ? email : "unknown@keupang.local";
     }
 
     public Page<StockWithProductResponse> getStocksWithProductInfo(

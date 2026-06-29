@@ -4,6 +4,8 @@
 # Gradle 캐시
 .gradle
 build/
+__pycache__/
+*.py[cod]
 
 # OS 파일
 .DS_Store
@@ -12,6 +14,11 @@ Thumbs.db
 # 환경 파일
 .env
 .env.deploy
+
+# Data pipeline outputs
+data-pipeline/out*/
+data-pipeline/imported/
+data-pipeline/raw-datasets/
 
 # docker-compose.yml
 docker-compose.yml

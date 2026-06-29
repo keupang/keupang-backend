@@ -7,7 +7,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +27,7 @@ public class Stock {
     private SaleState saleState;
     private Integer price;
     private Integer quantity;
+    private String sellerEmail;
 
     @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -40,11 +40,12 @@ public class Stock {
 
     @Builder
     public Stock(Long productId, SaleState saleState, Integer price, Integer quantity,
-        List<StockDetailImage> detailImages) {
+        String sellerEmail, List<StockDetailImage> detailImages) {
         this.productId = productId;
         this.saleState = saleState;
         this.price = price;
         this.quantity = quantity;
+        this.sellerEmail = sellerEmail;
         this.detailImages = detailImages;
         this.sales = 0;
     }
