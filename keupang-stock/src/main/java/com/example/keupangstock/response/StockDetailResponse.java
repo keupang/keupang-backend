@@ -14,6 +14,7 @@ public record StockDetailResponse(
     Integer price,
     Integer quantity,
     String saleState,
+    String sellerEmail,
     List<String> detailImages,
     List<ReviewResponse> reviews
 ) {
@@ -27,6 +28,7 @@ public record StockDetailResponse(
             stock.getPrice(),
             stock.getQuantity(),
             stock.getSaleState().name(),
+            stock.getSellerEmail(),
             images.stream().map(StockDetailImage::getImageUrl).toList(),
             reviews
         );
