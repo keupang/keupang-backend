@@ -11,6 +11,7 @@ Thumbs.db
 
 # 환경 파일
 .env
+.env.deploy
 
 # docker-compose.yml
 docker-compose.yml

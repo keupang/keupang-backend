@@ -1,5 +1,6 @@
 package com.example.keupangconfigserver.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -15,7 +16,11 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final SecurityProperties securityProperties;
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();
@@ -35,8 +40,8 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(){
         UserDetails user1 = User.builder()
-            .username("admin")
-            .password(bCryptPasswordEncoder().encode("admin"))
+            .username(securityProperties.getUsername())
+            .password(bCryptPasswordEncoder().encode(securityProperties.getPassword()))
             .roles("ADMIN")
             .build();
 

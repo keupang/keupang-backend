@@ -26,7 +26,7 @@ springdoc:
 openapi:
     service:
         # API Gateway 포트
-        url: https://api.keupang.store
+        url: "${GATEWAY_PUBLIC_URL:http://localhost:8080}"
 
 eureka:
     client:

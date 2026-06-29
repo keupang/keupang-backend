@@ -8,10 +8,10 @@ spring:
                 cors-configurations:
                     '[/**]':
                         allowedOrigins:
-                            - "http://localhost:5173"
-                            - "https://www.keupang.store"
-                            - "https://api.keupang.store"
-                            - "https://keupang.store"
+                            - "${FRONTEND_LOCAL_ORIGIN:http://localhost:5173}"
+                            - "${FRONTEND_PUBLIC_ORIGIN:https://www.example.com}"
+                            - "${FRONTEND_ROOT_ORIGIN:https://example.com}"
+                            - "${GATEWAY_PUBLIC_URL:http://localhost:8080}"
                         allowedMethods:
                             - GET
                             - POST

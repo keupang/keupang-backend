@@ -31,7 +31,14 @@ springdoc:
 openapi:
     service:
         # API Gateway 포트
-        url: https://api.keupang.store
+        url: "${GATEWAY_PUBLIC_URL:http://localhost:8080}"
+
+aws:
+    s3:
+        bucket: ${AWS_S3_BUCKET}
+        access-key: ${AWS_S3_ACCESS_KEY}
+        secret-key: ${AWS_S3_SECRET_KEY}
+        region: ${AWS_S3_REGION}
 
 eureka:
     client:

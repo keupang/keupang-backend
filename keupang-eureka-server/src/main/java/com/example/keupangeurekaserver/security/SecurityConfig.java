@@ -17,6 +17,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final SecurityProperties securityProperties;
+
+    public SecurityConfig(SecurityProperties securityProperties) {
+        this.securityProperties = securityProperties;
+    }
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
@@ -36,8 +42,8 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(){
         UserDetails user1 = User.builder()
-            .username("admin")
-            .password(bCryptPasswordEncoder().encode("admin"))
+            .username(securityProperties.getUsername())
+            .password(bCryptPasswordEncoder().encode(securityProperties.getPassword()))
             .roles("ADMIN")
             .build();
         return new InMemoryUserDetailsManager(user1);

@@ -5,6 +5,7 @@ import com.example.keupangproduct.domain.Product;
 import com.example.keupangproduct.exception.CustomException;
 import com.example.keupangstock.client.ProductClient;
 import com.example.keupangstock.client.ReviewClient;
+import com.example.keupangstock.config.S3Properties;
 import com.example.keupangstock.domain.SaleState;
 import com.example.keupangstock.domain.Stock;
 import com.example.keupangstock.domain.StockDetailImage;
@@ -22,7 +23,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -45,11 +45,7 @@ public class StockService {
     private final ProductClient productClient;
     private final S3Client s3Client;
     private final ReviewClient reviewClient;
-
-    @Value("${aws.s3.bucket}")
-    private String bucketName;
-    @Value("${aws.s3.region}")
-    private String region;
+    private final S3Properties s3Properties;
 
     public Long createProduct(MultipartFile image, String name, Category category){
 
@@ -109,7 +105,7 @@ public class StockService {
         for(MultipartFile detailImage : detailImages){
             String imageName = UUID.randomUUID().toString();
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(s3Properties.getBucket())
                 .key(imageName)
                 .acl(ObjectCannedACL.PUBLIC_READ)
                 .contentType(detailImage.getContentType())
@@ -121,7 +117,7 @@ public class StockService {
             );
 
             String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
-                bucketName, region, imageName);
+                s3Properties.getBucket(), s3Properties.getRegion(), imageName);
 
             StockDetailImage stockDetailImage = StockDetailImage.builder()
                 .imageUrl(imageUrl)
