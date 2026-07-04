@@ -177,11 +177,27 @@ def upload_file(s3_client: Any, bucket: str, key: str, path: Path, content_type:
         bucket,
         key,
         ExtraArgs={
-            "ACL": "public-read",
             "ContentType": content_type,
             "CacheControl": "public, max-age=31536000, immutable",
         },
     )
+
+
+def write_failed_row(out_dir: Path, row: ProductRow, reason: str) -> None:
+    path = out_dir / "failed-products.csv"
+    exists = path.exists()
+    with path.open("a", encoding="utf-8", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=["source_id", "name", "category", "reason"])
+        if not exists:
+            writer.writeheader()
+        writer.writerow(
+            {
+                "source_id": row.source_id,
+                "name": row.name,
+                "category": row.category,
+                "reason": reason[:500],
+            }
+        )
 
 
 def delete_prefix(s3_client: Any, bucket: str, prefix: str) -> None:
@@ -376,58 +392,67 @@ def process(config: dict[str, Any], input_path: Path, out_dir: Path, upload_s3: 
     raw_dir = out_dir / "raw"
     processed_dir = out_dir / "processed"
 
-    for row in rows:
+    for index, row in enumerate(rows, start=1):
         item_id = f"{slugify(row.name)}-{short_hash(row.source_id or row.name)}"
         item_prefix = f"{prefix}/products/{row.category.lower()}/{item_id}"
         local_item_dir = processed_dir / row.category.lower() / item_id
         raw_item_dir = raw_dir / row.category.lower() / item_id
 
-        main_source = download_image(row.main_image_url, raw_item_dir / "main", "original")
-        main_urls: dict[str, str] = {}
-        for variant_name, size in config["image"]["variants"]["main"].items():
-            target = local_item_dir / "main" / f"{variant_name}.{extension}"
-            resize_image(main_source, target, int(size["width"]), int(size["height"]), image_format, quality)
-            key = f"{item_prefix}/main/{variant_name}.{extension}"
-            if upload_s3 and s3_client:
-                upload_file(s3_client, bucket, key, target, f"image/{extension}")
-            main_urls[variant_name] = s3_url(config, key)
-
-        detail_urls_for_db: list[str] = []
-        detail_manifest: list[dict[str, Any]] = []
-        for detail_index, detail_url in enumerate(row.detail_image_urls, start=1):
-            detail_source = download_image(detail_url, raw_item_dir / "detail" / str(detail_index), "original")
-            variant_urls: dict[str, str] = {}
-            for variant_name, size in config["image"]["variants"]["detail"].items():
-                target = local_item_dir / "detail" / str(detail_index) / f"{variant_name}.{extension}"
-                resize_image(detail_source, target, int(size["width"]), int(size["height"]), image_format, quality)
-                key = f"{item_prefix}/detail/{detail_index}/{variant_name}.{extension}"
+        try:
+            main_source = download_image(row.main_image_url, raw_item_dir / "main", "original")
+            main_urls: dict[str, str] = {}
+            for variant_name, size in config["image"]["variants"]["main"].items():
+                target = local_item_dir / "main" / f"{variant_name}.{extension}"
+                resize_image(main_source, target, int(size["width"]), int(size["height"]), image_format, quality)
+                key = f"{item_prefix}/main/{variant_name}.{extension}"
                 if upload_s3 and s3_client:
                     upload_file(s3_client, bucket, key, target, f"image/{extension}")
-                variant_urls[variant_name] = s3_url(config, key)
+                main_urls[variant_name] = s3_url(config, key)
 
-            db_variant = "lg" if "lg" in variant_urls else next(iter(variant_urls))
-            detail_urls_for_db.append(variant_urls[db_variant])
-            detail_manifest.append({"source_url": detail_url, "variants": variant_urls})
+            detail_urls_for_db: list[str] = []
+            detail_manifest: list[dict[str, Any]] = []
+            for detail_index, detail_url in enumerate(row.detail_image_urls, start=1):
+                try:
+                    detail_source = download_image(detail_url, raw_item_dir / "detail" / str(detail_index), "original")
+                    variant_urls: dict[str, str] = {}
+                    for variant_name, size in config["image"]["variants"]["detail"].items():
+                        target = local_item_dir / "detail" / str(detail_index) / f"{variant_name}.{extension}"
+                        resize_image(detail_source, target, int(size["width"]), int(size["height"]), image_format, quality)
+                        key = f"{item_prefix}/detail/{detail_index}/{variant_name}.{extension}"
+                        if upload_s3 and s3_client:
+                            upload_file(s3_client, bucket, key, target, f"image/{extension}")
+                        variant_urls[variant_name] = s3_url(config, key)
 
-        db_main_variant = "card" if "card" in main_urls else next(iter(main_urls))
-        records.append(
-            {
-                "source_id": row.source_id,
-                "s3_prefix": item_prefix,
-                "product": {
-                    "name": row.name,
-                    "category": row.category,
-                    "image_url": main_urls[db_main_variant],
-                    "image_variants": main_urls,
-                },
-                "stock": {
-                    "price": row.price,
-                    "quantity": row.quantity,
-                    "detail_image_urls": detail_urls_for_db,
-                    "detail_image_variants": detail_manifest,
-                },
-            }
-        )
+                    db_variant = "lg" if "lg" in variant_urls else next(iter(variant_urls))
+                    detail_urls_for_db.append(variant_urls[db_variant])
+                    detail_manifest.append({"source_url": detail_url, "variants": variant_urls})
+                except Exception as exc:
+                    print(f"Skipped detail image for source_id={row.source_id}: {exc}", file=sys.stderr)
+
+            db_main_variant = "card" if "card" in main_urls else next(iter(main_urls))
+            records.append(
+                {
+                    "source_id": row.source_id,
+                    "s3_prefix": item_prefix,
+                    "product": {
+                        "name": row.name,
+                        "category": row.category,
+                        "image_url": main_urls[db_main_variant],
+                        "image_variants": main_urls,
+                    },
+                    "stock": {
+                        "price": row.price,
+                        "quantity": row.quantity,
+                        "detail_image_urls": detail_urls_for_db,
+                        "detail_image_variants": detail_manifest,
+                    },
+                }
+            )
+            if index % 100 == 0:
+                print(f"Processed {index}/{len(rows)} rows; kept {len(records)} products")
+        except Exception as exc:
+            write_failed_row(out_dir, row, str(exc))
+            print(f"Skipped product source_id={row.source_id}: {exc}", file=sys.stderr)
 
     return records
 
@@ -441,6 +466,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--upload-s3", action="store_true", help="Upload processed image variants to S3.")
     parser.add_argument("--delete-prefix", action="store_true", help="Delete configured S3 prefix before upload.")
     parser.add_argument("--yes", action="store_true", help="Required with --delete-prefix.")
+    parser.add_argument("--clean", action="store_true", help="Delete output directory before running.")
     return parser.parse_args()
 
 
@@ -448,7 +474,7 @@ def main() -> int:
     args = parse_args()
     config = load_config(args.config)
 
-    if args.out_dir.exists():
+    if args.clean and args.out_dir.exists():
         shutil.rmtree(args.out_dir)
     args.out_dir.mkdir(parents=True, exist_ok=True)
 

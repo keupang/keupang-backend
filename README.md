@@ -12,7 +12,7 @@ Vercel Frontend
   -> Caddy Reverse Proxy
   -> Spring Cloud Gateway
   -> Eureka / Config Server
-  -> Auth / User / Product / Stock / Review
+  -> Auth / User / Product / Stock / Review / Order
   -> MySQL / Redis / AWS S3
 ```
 
@@ -28,6 +28,7 @@ Vercel Frontend
 | `keupang-product` | 상품 기본 정보, 상품 이미지 S3 업로드 |
 | `keupang-stock` | 재고/판매 상품 도메인, 상품/리뷰 연동 조회 |
 | `keupang-review` | 리뷰 도메인 |
+| `keupang-order` | 주문 도메인, 주문 생성 및 Outbox 이벤트 저장 |
 | `mysql` | 서비스별 DB schema 저장소 |
 | `redis` | 인증/캐시성 데이터 저장소 |
 | `caddy` | HTTPS 인증서 자동 발급 및 Gateway reverse proxy |
@@ -83,6 +84,20 @@ prod branch push/merge
 
 자세한 사용법은 `data-pipeline/README.md`를 참고합니다.
 
+## MSA Consistency Roadmap
+
+주문 도메인은 MSA 분산 데이터 일관성 확장을 위한 첫 단계로 Outbox Pattern을 적용합니다.
+
+현재 단계:
+
+```text
+Order API
+  -> orders / order_item 저장
+  -> outbox_event에 OrderCreated 저장
+```
+
+주문 데이터와 이벤트 데이터는 같은 DB 트랜잭션 안에서 저장됩니다. 다음 단계에서는 `outbox_event.status = PENDING`인 이벤트를 Kafka로 발행하고, Stock/Payment 서비스가 이벤트를 구독해 재고 예약과 결제 흐름을 처리하도록 확장할 예정입니다.
+
 ## Required Environment
 
 실제 배포 환경에서는 repository root에 `.env.deploy`를 준비하거나 Jenkins의 Secret file credential로 등록합니다. 민감 정보가 포함되므로 `.env.deploy`는 Git에 commit하지 않습니다.
@@ -110,6 +125,7 @@ prod branch push/merge
 | `PRODUCT_DB_NAME` | Product service database name |
 | `STOCK_DB_NAME` | Stock service database name |
 | `REVIEW_DB_NAME` | Review service database name |
+| `ORDER_DB_NAME` | Order service database name |
 | `REDIS_HOST` | Docker 배포에서는 `service-redis` 권장 |
 | `REDIS_PORT` | Redis port. 기본 `6379` |
 

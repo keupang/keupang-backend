@@ -7,5 +7,5 @@ include 'keupang-gateway'
 include 'keupang-auth'
 include 'keupang-stock'
 include 'keupang-review'
-
+include 'keupang-order'
 

@@ -68,6 +68,7 @@ Expected internal-only containers:
 - `keupang-product`
 - `keupang-stock`
 - `keupang-review`
+- `keupang-order`
 - `keupang-mysql`
 - `keupang-redis`
 
@@ -95,6 +96,7 @@ Registered apps should include:
 - `PRODUCT`
 - `STOCK`
 - `REVIEW`
+- `ORDER`
 - `KEUPANG-GATEWAY`
 
 ## 6. Config Server
@@ -126,8 +128,17 @@ Expected databases:
 - `keupang_product`
 - `keupang_stock`
 - `keupang_review`
+- `keupang_order`
 
 If databases are missing, confirm this is the first initialization of the `mysql-data` volume. MySQL only runs `/docker-entrypoint-initdb.d` scripts when the data directory is empty.
+
+For an existing mini PC MySQL volume, create the order database manually before deploying the order service:
+
+```bash
+docker compose --env-file .env.deploy -f compose.deploy.yml exec mysql \
+  mysql -uroot -p"$DB_PASSWORD" \
+  -e "CREATE DATABASE IF NOT EXISTS keupang_order DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci;"
+```
 
 ## 8. Gateway API
 
@@ -159,13 +170,14 @@ docker compose -f compose.deploy.yml logs --tail=200 user
 docker compose -f compose.deploy.yml logs --tail=200 product
 docker compose -f compose.deploy.yml logs --tail=200 stock
 docker compose -f compose.deploy.yml logs --tail=200 review
+docker compose -f compose.deploy.yml logs --tail=200 order
 ```
 
 Use restart only after checking logs:
 
 ```bash
 docker compose -f compose.deploy.yml restart gateway
-docker compose -f compose.deploy.yml restart auth user product stock review
+docker compose -f compose.deploy.yml restart auth user product stock review order
 ```
 
 For Caddy certificate issues, check:
