@@ -264,6 +264,35 @@ services:
       - keupang-network
     restart: unless-stopped
 
+  order:
+    build:
+      context: ./keupang-order
+    container_name: keupang-order
+    environment:
+      security_username: ${security_username}
+      security_password: ${security_password}
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ORDER_DB_NAME: ${ORDER_DB_NAME}
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL}
+      TZ: Asia/Seoul
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      config-server:
+        condition: service_started
+      auth:
+        condition: service_started
+      stock:
+        condition: service_started
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
 networks:
   keupang-network:
     name: keupang-network
