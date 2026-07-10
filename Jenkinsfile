@@ -10,32 +10,36 @@ pipeline {
         GIT_REPO = 'https://github.com/keupang/keupang-backend.git'
         GIT_CREDENTIALS = 'github-key'
         DEPLOY_BRANCH = 'prod'
+        DEPLOY_DIR = '/home/cj8556/keupang-backend'
         COMPOSE_FILE = 'compose.deploy.yml'
-        ENV_FILE_CREDENTIALS = 'keupang-backend-env'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Sync Deploy Directory') {
             steps {
-                git branch: "${DEPLOY_BRANCH}", credentialsId: "${GIT_CREDENTIALS}", url: "${GIT_REPO}"
+                dir("${DEPLOY_DIR}") {
+                    git branch: "${DEPLOY_BRANCH}", credentialsId: "${GIT_CREDENTIALS}", url: "${GIT_REPO}"
+                }
             }
         }
 
         stage('Build') {
             steps {
-                sh './gradlew clean build'
+                dir("${DEPLOY_DIR}") {
+                    sh './gradlew clean build'
+                }
             }
         }
 
         stage('Deploy') {
             steps {
-                withCredentials([file(credentialsId: "${ENV_FILE_CREDENTIALS}", variable: 'DEPLOY_ENV_FILE')]) {
+                dir("${DEPLOY_DIR}") {
                     sh '''
                     set -e
-                    cp "$DEPLOY_ENV_FILE" .env.deploy
+                    test -f .env.deploy
                     docker compose --env-file .env.deploy -f "$COMPOSE_FILE" build
                     docker compose --env-file .env.deploy -f "$COMPOSE_FILE" up -d --remove-orphans
-                    rm -f .env.deploy
+                    docker compose --env-file .env.deploy -f "$COMPOSE_FILE" ps
                     '''
                 }
             }
@@ -43,11 +47,8 @@ pipeline {
     }
 
     post {
-        always {
-            sh 'rm -f .env.deploy'
-        }
         success {
-            echo "Keupang backend deployed from ${DEPLOY_BRANCH}."
+            echo "Keupang backend deployed from ${DEPLOY_BRANCH} at ${DEPLOY_DIR}."
         }
         failure {
             echo 'Keupang backend deployment failed.'

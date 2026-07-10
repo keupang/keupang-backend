@@ -31,19 +31,45 @@ Confirm the mini PC has:
 
 ## 3. Deploy Commands
 
-Jenkins runs these commands from `Jenkinsfile` on the mini PC:
+Jenkins reads `Jenkinsfile` from its own workspace, then runs checkout/build/deploy from the mini PC deploy directory:
+
+```bash
+/home/cj8556/keupang-backend
+```
+
+The deploy directory is the source of truth for manual operations. Keep the production env file here:
+
+```bash
+/home/cj8556/keupang-backend/.env.deploy
+```
+
+Jenkins runs these commands from `Jenkinsfile` inside the deploy directory:
 
 ```bash
 ./gradlew clean build
 docker compose --env-file .env.deploy -f compose.deploy.yml build
 docker compose --env-file .env.deploy -f compose.deploy.yml up -d --remove-orphans
+docker compose --env-file .env.deploy -f compose.deploy.yml ps
 ```
 
 For manual deploy testing, use a real env file with production values:
 
 ```bash
+cd /home/cj8556/keupang-backend
 docker compose --env-file .env.deploy -f compose.deploy.yml config
 docker compose --env-file .env.deploy -f compose.deploy.yml up -d --build
+```
+
+If Jenkins cannot write to `/home/cj8556/keupang-backend`, give both the login user and Jenkins access to the same deploy group:
+
+```bash
+sudo groupadd -f keupang-deploy
+sudo usermod -aG keupang-deploy cj8556
+sudo usermod -aG keupang-deploy jenkins
+sudo chgrp -R keupang-deploy /home/cj8556/keupang-backend
+sudo chmod -R g+rwX /home/cj8556/keupang-backend
+sudo find /home/cj8556/keupang-backend -type d -exec chmod g+s {} \;
+sudo systemctl restart jenkins
 ```
 
 ## 4. Container Status
@@ -51,7 +77,8 @@ docker compose --env-file .env.deploy -f compose.deploy.yml up -d --build
 Check that every service is running:
 
 ```bash
-docker compose -f compose.deploy.yml ps
+cd /home/cj8556/keupang-backend
+docker compose --env-file .env.deploy -f compose.deploy.yml ps
 ```
 
 Expected externally reachable container:
