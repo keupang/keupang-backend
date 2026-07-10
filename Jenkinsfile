@@ -25,23 +25,24 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir("${DEPLOY_DIR}") {
-                    sh './gradlew clean build'
-                }
+                sh '''
+                set -e
+                cd "$DEPLOY_DIR"
+                ./gradlew clean build
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
-                dir("${DEPLOY_DIR}") {
-                    sh '''
-                    set -e
-                    test -f .env.deploy
-                    docker compose --env-file .env.deploy -f "$COMPOSE_FILE" build
-                    docker compose --env-file .env.deploy -f "$COMPOSE_FILE" up -d --remove-orphans
-                    docker compose --env-file .env.deploy -f "$COMPOSE_FILE" ps
-                    '''
-                }
+                sh '''
+                set -e
+                cd "$DEPLOY_DIR"
+                test -f .env.deploy
+                docker compose --env-file .env.deploy -f "$COMPOSE_FILE" build
+                docker compose --env-file .env.deploy -f "$COMPOSE_FILE" up -d --remove-orphans
+                docker compose --env-file .env.deploy -f "$COMPOSE_FILE" ps
+                '''
             }
         }
     }
