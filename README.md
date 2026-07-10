@@ -205,7 +205,6 @@ Jenkins Pipeline은 `Jenkinsfile`을 사용합니다.
 | ID | Kind | Usage |
 | --- | --- | --- |
 | `github-key` | Username with password | GitHub repository checkout. Password에는 GitHub PAT 사용 |
-| `keupang-backend-env` | Secret file | `.env.deploy` 파일 |
 
 Jenkins job 설정:
 
@@ -219,10 +218,37 @@ Script Path: Jenkinsfile
 Build Trigger: GitHub hook trigger for GITScm polling
 ```
 
+Jenkins는 자체 workspace에서 Docker Compose를 실행하지 않고, 미니 PC의 운영 repo인 `/home/cj8556/keupang-backend`를 기준으로 배포합니다.
+
+```text
+Jenkins workspace
+  -> Jenkinsfile 읽기
+  -> /home/cj8556/keupang-backend checkout/pull
+  -> /home/cj8556/keupang-backend 에서 build/deploy
+```
+
+운영 env 파일은 미니 PC에 한 번만 배치합니다.
+
+```bash
+/home/cj8556/keupang-backend/.env.deploy
+```
+
 Jenkins 서버는 Docker 명령을 실행해야 하므로 `jenkins` 사용자가 `docker` 그룹에 포함되어 있어야 합니다.
 
 ```bash
 sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
+```
+
+또한 Jenkins가 운영 repo를 갱신하고 빌드 산출물을 만들 수 있어야 하므로 `/home/cj8556/keupang-backend`에 대한 쓰기 권한이 필요합니다. 권한 문제로 checkout/build가 실패하면 미니 PC에서 다음처럼 배포용 그룹을 만들어 `cj8556`과 `jenkins`가 함께 접근하게 합니다.
+
+```bash
+sudo groupadd -f keupang-deploy
+sudo usermod -aG keupang-deploy cj8556
+sudo usermod -aG keupang-deploy jenkins
+sudo chgrp -R keupang-deploy /home/cj8556/keupang-backend
+sudo chmod -R g+rwX /home/cj8556/keupang-backend
+sudo find /home/cj8556/keupang-backend -type d -exec chmod g+s {} \;
 sudo systemctl restart jenkins
 ```
 
