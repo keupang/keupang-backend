@@ -8,6 +8,7 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Date;
+import java.util.Map;
 import keupang.keupangauth.config.JwtProperties;
 import keupang.keupangauth.utils.PemUtils;
 import lombok.RequiredArgsConstructor;
@@ -40,11 +41,11 @@ public class JwtTokenProvider {
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()
+            .setClaims(Map.of("role", role))
             .setSubject(email)
-            .claim("role", role)
             .setIssuedAt(now)
             .setExpiration(validity)
-            .signWith(keyPair.getPrivate())
+            .signWith(keyPair.getPrivate(), SignatureAlgorithm.ES256)
             .compact();
     }
 
