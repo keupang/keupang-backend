@@ -3,6 +3,7 @@ package com.example.keupangorder.exception;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -32,6 +33,21 @@ public class GlobalExceptionHandler {
                 "INVALID_TOKEN",
                 "Token validation failed.",
                 "Provide a valid token."
+            ));
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse> handleMissingRequestHeader(MissingRequestHeaderException ex) {
+        if (!"Authorization".equalsIgnoreCase(ex.getHeaderName())) {
+            return handleGeneralException(ex);
+        }
+        return ResponseEntity.status(401)
+            .body(new ErrorResponse(
+                401,
+                40182,
+                "EMPTY_ACCESS_TOKEN",
+                "jwt 토큰이 없습니다.",
+                "로그인 후 Authorization 헤더에 Bearer 토큰을 넣어주세요."
             ));
     }
 
