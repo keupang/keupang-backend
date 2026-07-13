@@ -14,8 +14,13 @@ import com.example.keupangorder.request.CreateOrderRequest;
 import com.example.keupangorder.response.OrderResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +43,14 @@ public class OrderService {
     public OrderResponse createOrder(String token, CreateOrderRequest request) {
         String userEmail = resolveUserEmail(token);
         validateRequest(request);
+        String idempotencyKey = normalizeIdempotencyKey(request.idempotencyKey());
+        String requestHash = createRequestHash(request);
+
+        Order existingOrder = orderRepository.findByUserEmailAndIdempotencyKey(userEmail, idempotencyKey).orElse(null);
+        if (existingOrder != null) {
+            validateIdempotentReplay(existingOrder, requestHash);
+            return OrderResponse.from(existingOrder);
+        }
 
         List<OrderItem> orderItems = new ArrayList<>();
         int totalPrice = 0;
@@ -67,13 +80,15 @@ public class OrderService {
         Order order = Order.builder()
             .orderNumber(createOrderNumber())
             .userEmail(userEmail)
+            .idempotencyKey(idempotencyKey)
+            .requestHash(requestHash)
             .totalPrice(totalPrice)
             .status(OrderStatus.PENDING)
             .build();
         orderItems.forEach(order::addItem);
 
         Order savedOrder = orderRepository.save(order);
-        outboxEventRepository.save(createOrderCreatedEvent(savedOrder, request.idempotencyKey()));
+        outboxEventRepository.save(createOrderCreatedEvent(savedOrder));
         return OrderResponse.from(savedOrder);
     }
 
@@ -122,6 +137,16 @@ public class OrderService {
                 "EMPTY_ORDER_ITEMS"
             );
         }
+        if (request.idempotencyKey() == null || request.idempotencyKey().isBlank()
+            || request.idempotencyKey().length() > 120) {
+            throw new CustomException(
+                HttpStatus.BAD_REQUEST,
+                40003,
+                "멱등성 키가 올바르지 않습니다.",
+                "idempotencyKey를 1자 이상 120자 이하로 입력해주세요.",
+                "INVALID_IDEMPOTENCY_KEY"
+            );
+        }
         for (CreateOrderItemRequest item : request.items()) {
             if (item.stockId() == null || item.quantity() == null || item.quantity() <= 0) {
                 throw new CustomException(
@@ -156,7 +181,7 @@ public class OrderService {
         );
     }
 
-    private OutboxEvent createOrderCreatedEvent(Order order, String idempotencyKey) {
+    private OutboxEvent createOrderCreatedEvent(Order order) {
         String eventId = UUID.randomUUID().toString();
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("eventId", eventId);
@@ -165,7 +190,7 @@ public class OrderService {
         payload.put("orderNumber", order.getOrderNumber());
         payload.put("userEmail", order.getUserEmail());
         payload.put("totalPrice", order.getTotalPrice());
-        payload.put("idempotencyKey", idempotencyKey);
+        payload.put("idempotencyKey", order.getIdempotencyKey());
         payload.put("occurredAt", LocalDateTime.now().toString());
         payload.put("items", order.getItems().stream()
             .map(item -> Map.of(
@@ -183,6 +208,37 @@ public class OrderService {
             .eventType("OrderCreated")
             .payload(toJson(payload))
             .build();
+    }
+
+    private String normalizeIdempotencyKey(String idempotencyKey) {
+        return idempotencyKey.trim();
+    }
+
+    private String createRequestHash(CreateOrderRequest request) {
+        String normalizedItems = request.items().stream()
+            .sorted(Comparator.comparing(CreateOrderItemRequest::stockId)
+                .thenComparing(CreateOrderItemRequest::quantity))
+            .map(item -> item.stockId() + ":" + item.quantity())
+            .reduce((left, right) -> left + "|" + right)
+            .orElse("");
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return HexFormat.of().formatHex(digest.digest(normalizedItems.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IllegalStateException("SHA-256 is not available", ex);
+        }
+    }
+
+    private void validateIdempotentReplay(Order existingOrder, String requestHash) {
+        if (!existingOrder.getRequestHash().equals(requestHash)) {
+            throw new CustomException(
+                HttpStatus.CONFLICT,
+                40902,
+                "이미 다른 주문 요청에 사용된 멱등성 키입니다.",
+                "새 주문을 만들려면 새로운 idempotencyKey를 사용해주세요.",
+                "IDEMPOTENCY_KEY_REUSED"
+            );
+        }
     }
 
     private String createOrderNumber() {

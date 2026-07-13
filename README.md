@@ -92,9 +92,12 @@ prod branch push/merge
 
 ```text
 Order API
+  -> userEmail + idempotencyKey로 중복 요청 확인
   -> orders / order_item 저장
   -> outbox_event에 OrderCreated 저장
 ```
+
+주문 생성은 `idempotencyKey`를 필수로 받습니다. 같은 사용자가 같은 `idempotencyKey`와 같은 주문 내용을 다시 보내면 기존 주문을 반환하고, 같은 key로 다른 주문 내용을 보내면 `409 CONFLICT`로 거절합니다. 이 처리는 사용자의 더블 클릭뿐 아니라 "서버는 저장에 성공했지만 클라이언트가 응답을 받지 못해 재시도하는 상황"을 안전하게 다루기 위한 장치입니다.
 
 주문 데이터와 이벤트 데이터는 같은 DB 트랜잭션 안에서 저장됩니다. 다음 단계에서는 `outbox_event.status = PENDING`인 이벤트를 Kafka로 발행하고, Stock/Payment 서비스가 이벤트를 구독해 재고 예약과 결제 흐름을 처리하도록 확장할 예정입니다.
 

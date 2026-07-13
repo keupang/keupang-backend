@@ -1,6 +1,7 @@
 package com.example.keupangorder.domain;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -9,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +23,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "orders")
+@Table(
+    name = "orders",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_orders_user_idempotency_key", columnNames = {"user_email", "idempotency_key"})
+    }
+)
 public class Order {
 
     @Id
@@ -30,6 +37,13 @@ public class Order {
 
     private String orderNumber;
     private String userEmail;
+
+    @Column(name = "idempotency_key", length = 120)
+    private String idempotencyKey;
+
+    @Column(name = "request_hash", length = 64)
+    private String requestHash;
+
     private Integer totalPrice;
 
     @Enumerated(EnumType.STRING)
@@ -45,9 +59,12 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Order(String orderNumber, String userEmail, Integer totalPrice, OrderStatus status) {
+    public Order(String orderNumber, String userEmail, String idempotencyKey, String requestHash, Integer totalPrice,
+        OrderStatus status) {
         this.orderNumber = orderNumber;
         this.userEmail = userEmail;
+        this.idempotencyKey = idempotencyKey;
+        this.requestHash = requestHash;
         this.totalPrice = totalPrice;
         this.status = status;
     }
