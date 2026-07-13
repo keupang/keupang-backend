@@ -8,5 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByOrderNumber(String orderNumber);
 
+    Optional<Order> findByUserEmailAndIdempotencyKey(String userEmail, String idempotencyKey);
+
     List<Order> findByUserEmailOrderByCreatedAtDesc(String userEmail);
 }

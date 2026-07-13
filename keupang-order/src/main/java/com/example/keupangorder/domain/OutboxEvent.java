@@ -8,6 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +19,14 @@ import org.hibernate.annotations.CreationTimestamp;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_outbox_aggregate_event",
+            columnNames = {"aggregate_type", "aggregate_id", "event_type"}
+        )
+    }
+)
 public class OutboxEvent {
 
     @Id

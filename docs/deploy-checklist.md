@@ -167,6 +167,14 @@ docker compose --env-file .env.deploy -f compose.deploy.yml exec mysql \
   -e "CREATE DATABASE IF NOT EXISTS keupang_order DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci;"
 ```
 
+After deploying the order service, confirm idempotency columns and unique constraints exist:
+
+```bash
+docker compose --env-file .env.deploy -f compose.deploy.yml exec mysql \
+  mysql -uroot -p"$DB_PASSWORD" \
+  -e "SHOW COLUMNS FROM keupang_order.orders LIKE 'idempotency_key'; SHOW COLUMNS FROM keupang_order.orders LIKE 'request_hash'; SHOW INDEX FROM keupang_order.orders WHERE Key_name = 'uk_orders_user_idempotency_key';"
+```
+
 ## 8. Gateway API
 
 Check the public Gateway endpoint:
