@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.example.keupangorder.client.AuthClient;
 import com.example.keupangorder.client.StockClient;
+import com.example.keupangorder.config.OrderPolicyProperties;
 import com.example.keupangorder.domain.Order;
 import com.example.keupangorder.domain.OrderStatus;
 import com.example.keupangorder.exception.CustomException;
@@ -56,7 +57,8 @@ class OrderServiceTest {
             outboxEventRepository,
             authClient,
             stockClient,
-            new ObjectMapper()
+            new ObjectMapper(),
+            new OrderPolicyProperties()
         );
     }
 
@@ -116,6 +118,59 @@ class OrderServiceTest {
             .isInstanceOf(CustomException.class)
             .extracting("status")
             .isEqualTo(HttpStatus.CONFLICT);
+        verify(stockClient, never()).getStockDetail(any());
+        verify(orderRepository, never()).save(any());
+        verify(outboxEventRepository, never()).save(any());
+    }
+
+    @Test
+    void createOrderRejectsWhenOrderCreationIsDisabledByPolicy() {
+        OrderService disabledOrderService = new OrderService(
+            orderRepository,
+            outboxEventRepository,
+            authClient,
+            stockClient,
+            new ObjectMapper(),
+            new OrderPolicyProperties(false, 10, OrderPolicyProperties.StockReservationMode.SYNC)
+        );
+        CreateOrderRequest request = new CreateOrderRequest(
+            List.of(new CreateOrderItemRequest(1L, 1)),
+            "order-disabled"
+        );
+
+        assertThatThrownBy(() -> disabledOrderService.createOrder("Bearer token", request))
+            .isInstanceOf(CustomException.class)
+            .extracting("status")
+            .isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        verify(authClient, never()).validateToken(any());
+        verify(stockClient, never()).getStockDetail(any());
+        verify(orderRepository, never()).save(any());
+        verify(outboxEventRepository, never()).save(any());
+    }
+
+    @Test
+    void createOrderRejectsWhenItemCountExceedsPolicyLimit() {
+        OrderService limitedOrderService = new OrderService(
+            orderRepository,
+            outboxEventRepository,
+            authClient,
+            stockClient,
+            new ObjectMapper(),
+            new OrderPolicyProperties(true, 1, OrderPolicyProperties.StockReservationMode.SYNC)
+        );
+        CreateOrderRequest request = new CreateOrderRequest(
+            List.of(
+                new CreateOrderItemRequest(1L, 1),
+                new CreateOrderItemRequest(2L, 1)
+            ),
+            "order-too-many-items"
+        );
+
+        assertThatThrownBy(() -> limitedOrderService.createOrder("Bearer token", request))
+            .isInstanceOf(CustomException.class)
+            .extracting("status")
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+        verify(authClient, never()).validateToken(any());
         verify(stockClient, never()).getStockDetail(any());
         verify(orderRepository, never()).save(any());
         verify(outboxEventRepository, never()).save(any());

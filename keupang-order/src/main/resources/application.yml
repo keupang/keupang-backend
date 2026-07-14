@@ -27,6 +27,12 @@ openapi:
     service:
         url: "${GATEWAY_PUBLIC_URL:http://localhost:8080}"
 
+keupang:
+    order:
+        create-enabled: true
+        max-items-per-order: 10
+        stock-reservation-mode: SYNC
+
 management:
     endpoints:
         web:

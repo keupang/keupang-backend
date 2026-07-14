@@ -2,6 +2,7 @@ package com.example.keupangorder.service;
 
 import com.example.keupangorder.client.AuthClient;
 import com.example.keupangorder.client.StockClient;
+import com.example.keupangorder.config.OrderPolicyProperties;
 import com.example.keupangorder.domain.Order;
 import com.example.keupangorder.domain.OrderItem;
 import com.example.keupangorder.domain.OrderStatus;
@@ -38,11 +39,12 @@ public class OrderService {
     private final AuthClient authClient;
     private final StockClient stockClient;
     private final ObjectMapper objectMapper;
+    private final OrderPolicyProperties orderPolicyProperties;
 
     @Transactional
     public OrderResponse createOrder(String token, CreateOrderRequest request) {
-        String userEmail = resolveUserEmail(token);
         validateRequest(request);
+        String userEmail = resolveUserEmail(token);
         String idempotencyKey = normalizeIdempotencyKey(request.idempotencyKey());
         String requestHash = createRequestHash(request);
 
@@ -128,6 +130,15 @@ public class OrderService {
     }
 
     private void validateRequest(CreateOrderRequest request) {
+        if (!orderPolicyProperties.createEnabled()) {
+            throw new CustomException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                50301,
+                "현재 주문 생성이 일시 중지되었습니다.",
+                "잠시 후 다시 시도해주세요.",
+                "ORDER_CREATE_DISABLED"
+            );
+        }
         if (request == null || request.items() == null || request.items().isEmpty()) {
             throw new CustomException(
                 HttpStatus.BAD_REQUEST,
@@ -135,6 +146,24 @@ public class OrderService {
                 "주문 상품이 없습니다.",
                 "하나 이상의 상품을 담아 주문해주세요.",
                 "EMPTY_ORDER_ITEMS"
+            );
+        }
+        if (request.items().size() > orderPolicyProperties.maxItemsPerOrder()) {
+            throw new CustomException(
+                HttpStatus.BAD_REQUEST,
+                40004,
+                "한 번에 주문할 수 있는 상품 개수를 초과했습니다.",
+                "상품 개수를 " + orderPolicyProperties.maxItemsPerOrder() + "개 이하로 줄여주세요.",
+                "ORDER_ITEMS_LIMIT_EXCEEDED"
+            );
+        }
+        if (orderPolicyProperties.stockReservationMode() != OrderPolicyProperties.StockReservationMode.SYNC) {
+            throw new CustomException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                50302,
+                "비동기 재고 예약 모드는 아직 사용할 수 없습니다.",
+                "stockReservationMode를 SYNC로 설정해주세요.",
+                "ASYNC_STOCK_RESERVATION_NOT_READY"
             );
         }
         if (request.idempotencyKey() == null || request.idempotencyKey().isBlank()

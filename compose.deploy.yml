@@ -119,6 +119,7 @@ services:
       context: ./keupang-auth
     container_name: keupang-auth
     environment:
+      SERVER_PORT: 8080
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
       CONFIG_SERVER_URL: http://${security_username}:${security_password}@config-server:9000
       REDIS_HOST: ${REDIS_HOST:-redis}
@@ -147,6 +148,7 @@ services:
       context: ./keupang-user
     container_name: keupang-user
     environment:
+      SERVER_PORT: 8080
       security_username: ${security_username}
       security_password: ${security_password}
       DB_HOST: ${DB_HOST:-mysql}
@@ -176,6 +178,7 @@ services:
       context: ./keupang-product
     container_name: keupang-product
     environment:
+      SERVER_PORT: 8080
       security_username: ${security_username}
       security_password: ${security_password}
       DB_HOST: ${DB_HOST:-mysql}
@@ -205,6 +208,7 @@ services:
       context: ./keupang-stock
     container_name: keupang-stock
     environment:
+      SERVER_PORT: 8080
       security_username: ${security_username}
       security_password: ${security_password}
       DB_HOST: ${DB_HOST:-mysql}
@@ -240,6 +244,7 @@ services:
       context: ./keupang-review
     container_name: keupang-review
     environment:
+      SERVER_PORT: 8080
       security_username: ${security_username}
       security_password: ${security_password}
       DB_HOST: ${DB_HOST:-mysql}
@@ -269,6 +274,7 @@ services:
       context: ./keupang-order
     container_name: keupang-order
     environment:
+      SERVER_PORT: 8080
       security_username: ${security_username}
       security_password: ${security_password}
       DB_HOST: ${DB_HOST:-mysql}
