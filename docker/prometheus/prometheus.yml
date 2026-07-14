@@ -1,0 +1,39 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "keupang-gateway"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["gateway:8080"]
+
+  - job_name: "keupang-auth"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["auth:8080"]
+
+  - job_name: "keupang-user"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["user:8080"]
+
+  - job_name: "keupang-product"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["product:8080"]
+
+  - job_name: "keupang-stock"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["stock:8080"]
+
+  - job_name: "keupang-review"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["review:8080"]
+
+  - job_name: "keupang-order"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["order:8080"]

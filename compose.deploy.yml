@@ -293,6 +293,56 @@ services:
       - keupang-network
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: keupang-prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      gateway:
+        condition: service_started
+      auth:
+        condition: service_started
+      user:
+        condition: service_started
+      product:
+        condition: service_started
+      stock:
+        condition: service_started
+      review:
+        condition: service_started
+      order:
+        condition: service_started
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    container_name: keupang-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-change-me}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      prometheus:
+        condition: service_started
+    networks:
+      - keupang-network
+    restart: unless-stopped
+
 networks:
   keupang-network:
     name: keupang-network
@@ -303,3 +353,5 @@ volumes:
   caddy-config:
   mysql-data:
   redis-data:
+  prometheus-data:
+  grafana-data:

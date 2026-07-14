@@ -101,6 +101,36 @@ Order API
 
 주문 데이터와 이벤트 데이터는 같은 DB 트랜잭션 안에서 저장됩니다. 다음 단계에서는 `outbox_event.status = PENDING`인 이벤트를 Kafka로 발행하고, Stock/Payment 서비스가 이벤트를 구독해 재고 예약과 결제 흐름을 처리하도록 확장할 예정입니다.
 
+주문 생성과 멱등성 동작은 아래 스크립트로 한 번에 확인할 수 있습니다.
+
+```bash
+./scripts/test-order-idempotency.sh
+```
+
+기본 대상은 `https://keupang-api.duckdns.org`이며, 필요하면 환경변수로 바꿀 수 있습니다.
+
+```bash
+API_BASE_URL=http://localhost:8080 \
+USER_EMAIL=catalog-seller@keupang.local \
+USER_PASSWORD='keupang1234!' \
+STOCK_ID=1 \
+./scripts/test-order-idempotency.sh
+```
+
+Kafka 도입 전 현재 동기 주문 흐름의 latency와 실패율을 측정하려면 아래 스크립트를 사용합니다. 이 스크립트는 실제 주문을 생성하므로 운영 데이터에서 실행할 때는 테스트 주문이 남는 점을 감안합니다.
+
+```bash
+REQUESTS=20 ./scripts/load-order-sync.sh
+```
+
+동시 요청으로 동기 호출 체인의 흔들림을 보고 싶으면 `CONCURRENCY`를 함께 지정합니다.
+
+```bash
+REQUESTS=100 CONCURRENCY=10 ./scripts/load-order-sync.sh
+```
+
+Kafka 도입 근거를 만드는 관측 절차는 `docs/kafka-readiness-observability.md`에 정리되어 있습니다.
+
 ## Required Environment
 
 실제 배포 환경에서는 repository root에 `.env.deploy`를 준비하거나 Jenkins의 Secret file credential로 등록합니다. 민감 정보가 포함되므로 `.env.deploy`는 Git에 commit하지 않습니다.
