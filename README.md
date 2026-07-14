@@ -131,6 +131,8 @@ REQUESTS=100 CONCURRENCY=10 ./scripts/load-order-sync.sh
 
 Kafka 도입 근거를 만드는 관측 절차는 `docs/kafka-readiness-observability.md`에 정리되어 있습니다.
 
+Config Server는 주문 feature flag와 운영 정책값 관리에 사용합니다. 자세한 적용 방법은 `docs/config-server-feature-flags.md`를 참고합니다.
+
 ## Required Environment
 
 실제 배포 환경에서는 repository root에 `.env.deploy`를 준비하거나 Jenkins의 Secret file credential로 등록합니다. 민감 정보가 포함되므로 `.env.deploy`는 Git에 commit하지 않습니다.
