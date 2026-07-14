@@ -27,6 +27,23 @@ openapi:
     service:
         url: "${GATEWAY_PUBLIC_URL:http://localhost:8080}"
 
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info,prometheus,metrics
+    endpoint:
+        health:
+            probes:
+                enabled: true
+    metrics:
+        distribution:
+            percentiles-histogram:
+                http.server.requests: true
+                http.client.requests: true
+        tags:
+            application: ${spring.application.name}
+
 eureka:
     client:
         fetch-registry: true

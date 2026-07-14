@@ -30,7 +30,9 @@ ext {
 dependencies {
     //spring
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
     //config-client
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
